@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { ThemeToggle } from "./theme/ThemeToggle";
+import { logoFont } from "./layout/Sidebar";
 
 export const bg = "bg-gradient-to-br bg-background";
 
@@ -57,12 +58,14 @@ export function LoginComponent({
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                QueryBase
+              <h1
+                className={`${logoFont.className} text-2xl font-semibold text-primary tracking-tight`}
+              >
+                query<span className="text-ring">base</span>
               </h1>
               <p className="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed">
                 For teachers and students:{" "}
-                <span className="text-ring font-medium">QueryBase</span>
+                <span className="text-ring font-medium">querybase</span>
               </p>
             </div>
           </motion.div>
