@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
-const manrope = Manrope({
+const nunito = Nunito_Sans({
   subsets: ["latin"],
   display: "swap",
 });
@@ -55,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={manrope.className}>
+      <body className={nunito.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

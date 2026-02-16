@@ -89,7 +89,7 @@
   --color-background-lighten: var(--color-background-lighten);
 
   /* Borders & Highlights */
-  --color-borders-hairline: var(--color-borders-hairline);
+  --color-border-hairline: var(--color-borders-hairline);
   --color-border-gray-dark: var(--color-border-gray-dark);
   --color-border-gray-medium: var(--color-border-gray-medium);
   --color-border-gray-light: var(--color-border-gray-light);
@@ -121,13 +121,13 @@
 @layer base {
   :root {
     /* --- Standard UI Defaults (Light) --- */
-    --background: #ffffff;
+    --background: #fdfdfc;
     --foreground: #272727; /* Updated to match your text-default */
     --card: #ffffff;
     --card-foreground: #272727;
     --popover: #ffffff;
     --popover-foreground: #272727;
-    --primary: #000000; /* Matching primary-medium */
+    --primary: #1a1a1a; /* Matching primary-medium */
     --primary-foreground: #ffffff;
     --secondary: #f2f2f2;
     --secondary-foreground: #333333;
@@ -189,7 +189,7 @@
     --color-background-alternative-faded: var(--shade-0);
     --color-background-alternative-faint: var(--shade-1);
     --color-background-alternative-faint-new: #f4f5f6;
-    --color-background-alternative-medium: var(--shade-2);
+    --color-background-alternative-medium: #f9f9f9;
     --color-background-alternative-deep: var(--shade-6);
 
     --color-background-inverse: #000;
@@ -321,7 +321,7 @@
     --color-background-alternative-faded: var(--shade-9);
     --color-background-alternative-faint: var(--shade-8);
     --color-background-alternative-faint-new: #343a40;
-    --color-background-alternative-medium: var(--shade-7);
+    --color-background-alternative-medium: #25282c;
     --color-background-alternative-deep: var(--shade-5);
 
     --color-separators-ayah-level: #444444; /* Specific to dark mode in your snippet */
