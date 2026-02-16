@@ -14,6 +14,96 @@ export type Database = {
   };
   public: {
     Tables: {
+      answers: {
+        Row: {
+          author_id: string;
+          body_text: string | null;
+          created_at: string | null;
+          has_vn: boolean | null;
+          id: string;
+          is_official: boolean | null;
+          query_id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          author_id: string;
+          body_text?: string | null;
+          created_at?: string | null;
+          has_vn?: boolean | null;
+          id?: string;
+          is_official?: boolean | null;
+          query_id: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          author_id?: string;
+          body_text?: string | null;
+          created_at?: string | null;
+          has_vn?: boolean | null;
+          id?: string;
+          is_official?: boolean | null;
+          query_id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "answers_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "answers_query_id_fkey";
+            columns: ["query_id"];
+            isOneToOne: false;
+            referencedRelation: "queries";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      attachments: {
+        Row: {
+          answer_id: string | null;
+          created_at: string | null;
+          file_path: string;
+          file_type: string;
+          id: string;
+          query_id: string | null;
+        };
+        Insert: {
+          answer_id?: string | null;
+          created_at?: string | null;
+          file_path: string;
+          file_type: string;
+          id?: string;
+          query_id?: string | null;
+        };
+        Update: {
+          answer_id?: string | null;
+          created_at?: string | null;
+          file_path?: string;
+          file_type?: string;
+          id?: string;
+          query_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "attachments_answer_id_fkey";
+            columns: ["answer_id"];
+            isOneToOne: false;
+            referencedRelation: "answers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "attachments_query_id_fkey";
+            columns: ["query_id"];
+            isOneToOne: false;
+            referencedRelation: "queries";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       class_students: {
         Row: {
           class_id: string;
@@ -127,6 +217,76 @@ export type Database = {
           {
             foreignKeyName: "classes_created_by_fkey";
             columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      queries: {
+        Row: {
+          answered_at: string | null;
+          answered_by: string | null;
+          body_text: string | null;
+          class_id: string;
+          created_at: string | null;
+          has_vn: boolean | null;
+          id: string;
+          is_private: boolean | null;
+          status: string | null;
+          student_id: string;
+          title: string;
+          updated_at: string | null;
+          view_count: number | null;
+        };
+        Insert: {
+          answered_at?: string | null;
+          answered_by?: string | null;
+          body_text?: string | null;
+          class_id: string;
+          created_at?: string | null;
+          has_vn?: boolean | null;
+          id?: string;
+          is_private?: boolean | null;
+          status?: string | null;
+          student_id: string;
+          title: string;
+          updated_at?: string | null;
+          view_count?: number | null;
+        };
+        Update: {
+          answered_at?: string | null;
+          answered_by?: string | null;
+          body_text?: string | null;
+          class_id?: string;
+          created_at?: string | null;
+          has_vn?: boolean | null;
+          id?: string;
+          is_private?: boolean | null;
+          status?: string | null;
+          student_id?: string;
+          title?: string;
+          updated_at?: string | null;
+          view_count?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "queries_answered_by_fkey";
+            columns: ["answered_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "queries_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "queries_student_id_fkey";
+            columns: ["student_id"];
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
