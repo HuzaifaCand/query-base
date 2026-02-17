@@ -1,12 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Hash, User, Sparkles } from "lucide-react";
+import { User, Sparkles } from "lucide-react";
 import { useState } from "react";
 import clsx from "clsx";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { ClassCodeInput } from "./ClassCodeInput";
 import { supabase } from "@/lib/supabase";
+import { ContinueButton } from "./ContinueButton";
+import { TextInput } from "./TextInput";
 
 export default function JoinComponent() {
   const [displayName, setDisplayName] = useState("");
@@ -14,19 +16,21 @@ export default function JoinComponent() {
   const [submitting, setSubmitting] = useState(false);
 
   const handleJoinClass = async () => {
-    if (!classCode || !displayName) return;
+    if (!classCode) return;
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return;
-    const { error: userError } = await supabase
-      .from("update")
-      .update({ full_name: displayName })
-      .eq("id", user.id)
-      .single();
-    if (userError) {
-      console.error("Error updating user:", userError);
-      return;
+    if (displayName) {
+      const { error: userError } = await supabase
+        .from("update")
+        .update({ full_name: displayName })
+        .eq("id", user.id)
+        .single();
+      if (userError) {
+        console.error("Error updating user:", userError);
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -98,31 +102,24 @@ export default function JoinComponent() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <label
-                htmlFor="display-name"
-                className="block text-xs font-semibold text-muted-foreground ml-1 mb-1.5 uppercase tracking-wider"
-              >
-                Display Name
-              </label>
-              <div className="relative group">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 transition-colors group-focus-within:text-primary" />
-                <input
-                  id="display-name"
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Enter your name"
-                  className={clsx(
-                    "w-full rounded-xl border border-input bg-background/50 px-4 pl-10 py-3 text-sm outline-none transition-all",
-                    "focus:border-primary/50 focus:ring-4 focus:ring-primary/10",
-                    "placeholder:text-muted-foreground/40",
-                    "hover:border-accent-foreground/20",
-                  )}
-                />
-              </div>
+              <TextInput
+                title="Display Name"
+                text={displayName}
+                setText={setDisplayName}
+                placeholder="Enter your name"
+                Icon={User}
+              />
             </motion.div>
-
-            <ClassCodeInput classCode={classCode} setClassCode={setClassCode} />
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <ClassCodeInput
+                classCode={classCode}
+                setClassCode={setClassCode}
+              />
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -130,25 +127,13 @@ export default function JoinComponent() {
               transition={{ delay: 0.6 }}
               className="pt-2"
             >
-              <button
-                type="button"
-                disabled={!classCode || !displayName || submitting}
-                onClick={handleJoinClass}
-                className={clsx(
-                  "w-full relative group overflow-hidden rounded-xl bg-ring px-4 py-3.5 text-sm font-semibold text-white shadow-md transition-all",
-                  "hover:-translate-y-0.5",
-                  "active:translate-y-0 active:scale-[0.98]",
-                  "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0",
-                )}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                <span className="flex items-center justify-center gap-2 relative z-10">
-                  {submitting ? "Joining..." : "Continue to Class"}{" "}
-                  {!submitting && (
-                    <ArrowRight className="w-4 h-4 transition-transform" />
-                  )}
-                </span>
-              </button>
+              <ContinueButton
+                disabled={!classCode}
+                text="Join Class"
+                loadingText="Joining..."
+                submitting={submitting}
+                handleSubmit={handleJoinClass}
+              />
             </motion.div>
           </div>
         </div>
