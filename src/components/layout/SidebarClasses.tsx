@@ -15,12 +15,13 @@ import {
   Languages,
   GraduationCap,
   Loader,
+  Apple,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/lib/databasetypes";
 import { cn } from "@/lib/utils";
+import { useClasses } from "@/contexts/ClassesContext";
 
-// Subject to color and icon mapping (same as ClassCard)
 const subjectConfig: Record<
   string,
   { gradient: string; icon: React.ComponentType<{ className?: string }> }
@@ -39,7 +40,7 @@ const subjectConfig: Record<
   },
   physics: {
     gradient: "from-purple-500/60 to-violet-600/60",
-    icon: Beaker,
+    icon: Apple,
   },
   chemistry: {
     gradient: "from-pink-500/60 to-rose-600/60",
@@ -103,6 +104,7 @@ export default function SidebarClasses({ role }: SidebarClassesProps) {
   const [classes, setClasses] = useState<Tables<"classes">[]>([]);
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
+  const { refetchTrigger } = useClasses();
 
   useEffect(() => {
     async function fetchClasses() {
@@ -110,7 +112,6 @@ export default function SidebarClasses({ role }: SidebarClassesProps) {
       try {
         setLoading(true);
 
-        // Get current user
         const {
           data: { user },
           error: userError,
@@ -153,7 +154,7 @@ export default function SidebarClasses({ role }: SidebarClassesProps) {
     }
 
     fetchClasses();
-  }, [role]);
+  }, [role, refetchTrigger]);
 
   if (!loading && classes.length === 0) {
     return null;
