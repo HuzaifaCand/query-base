@@ -7,7 +7,7 @@ export default function TeacherPage() {
   return (
     <div className="flex flex-col">
       <SectionHeader title="Overview" />
-      <ClassesSection role={"teacher"} />
+      <ClassesSection role="teacher" />
     </div>
   );
 }
