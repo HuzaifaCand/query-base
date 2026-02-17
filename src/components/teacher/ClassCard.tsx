@@ -14,8 +14,14 @@ import {
   Languages,
   Users,
   GraduationCap,
+  Copy,
+  Earth,
+  Sun,
+  Apple,
 } from "lucide-react";
 import type { Tables } from "@/lib/databasetypes";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 // Subject to color and icon mapping
 const subjectConfig: Record<
@@ -36,7 +42,7 @@ const subjectConfig: Record<
   },
   physics: {
     gradient: "from-purple-500 to-violet-600",
-    icon: Beaker,
+    icon: Apple,
   },
   chemistry: {
     gradient: "from-pink-500 to-rose-600",
@@ -96,19 +102,22 @@ const subjectConfig: Record<
 interface ClassCardProps {
   classData: Tables<"classes">;
   studentCount?: number;
+  teacher?: string;
 }
 
 export default function ClassCard({
   classData,
   studentCount = 0,
+  teacher,
 }: ClassCardProps) {
-  // Get subject configuration
   const subjectKey = classData.subject?.toLowerCase() || "default";
   const config = subjectConfig[subjectKey] || subjectConfig.default;
   const Icon = config.icon;
 
+  const router = useRouter();
+
   return (
-    <Link href={`/teacher/${classData.id}`}>
+    <button onClick={() => router.push(`/teacher/${classData.id}`)}>
       <motion.div
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -145,9 +154,16 @@ export default function ClassCard({
         {/* Content */}
         <div className="p-5">
           {/* Class Name */}
-          <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-            {classData.name}
-          </h3>
+          <div className="space-y-0.5 mb-3">
+            <h3 className="text-xl text-left font-bold text-primary line-clamp-2 group-hover:text-primary transition-colors">
+              {classData.name}
+            </h3>
+            {teacher && (
+              <p className="text-left text-xs text-muted-foreground">
+                {teacher}
+              </p>
+            )}
+          </div>
 
           {/* Subject & Level */}
           <div className="flex items-center gap-2 mb-4">
@@ -181,6 +197,16 @@ export default function ClassCard({
               <code className="px-2 py-1 bg-muted text-foreground text-xs font-mono rounded">
                 {classData.class_code}
               </code>
+              <div title="Copy code">
+                <Copy
+                  className="w-4 h-4 text-muted-foreground hover:scale-107"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(classData.class_code);
+                    toast.success("Class code copied to clipboard");
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -188,6 +214,6 @@ export default function ClassCard({
         {/* Hover effect overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
       </motion.div>
-    </Link>
+    </button>
   );
 }

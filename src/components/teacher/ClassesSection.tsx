@@ -6,8 +6,10 @@ import type { Tables } from "@/lib/databasetypes";
 import ClassCard from "@/components/teacher/ClassCard";
 import AddClassCard from "@/components/teacher/AddClassCard";
 import { Loader2 } from "lucide-react";
+import { useClasses } from "@/contexts/ClassesContext";
 
-interface ClassWithStudentCount extends Tables<"classes"> {
+interface ClassWithTeacherAndStudentCount extends Tables<"classes"> {
+  teacher: string;
   studentCount: number;
 }
 
@@ -16,9 +18,10 @@ export default function ClassesSection({
 }: {
   role: "student" | "teacher" | "ta";
 }) {
-  const [classes, setClasses] = useState<ClassWithStudentCount[]>([]);
+  const [classes, setClasses] = useState<ClassWithTeacherAndStudentCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { refetchTrigger } = useClasses();
 
   useEffect(() => {
     async function fetchClasses() {
@@ -37,12 +40,12 @@ export default function ClassesSection({
         if (!user) throw new Error("Not authenticated");
 
         // Fetch classes where the current user is a teacher
-        const { data: classes, error: teacherError } = await supabase
+        const { data: classes, error: fetchError } = await supabase
           .from(table)
           .select("class_id")
           .eq(role === "student" ? "student_id" : "teacher_id", user.id);
 
-        if (teacherError) throw teacherError;
+        if (fetchError) throw fetchError;
 
         if (!classes || classes.length === 0) {
           setClasses([]);
@@ -61,9 +64,25 @@ export default function ClassesSection({
 
         if (classesError) throw classesError;
 
+        const classesWithTeachers = await Promise.all(
+          (classesData || []).map(async (classData) => {
+            const { data: teacher, error: teachersError } = await supabase
+              .from("class_teachers")
+              .select("display_name") //teacher name
+              .eq("class_id", classData.id)
+              .maybeSingle();
+
+            if (teachersError) {
+              console.error("Error fetching teachers:", teachersError);
+              return { ...classData, teacher: [] };
+            }
+
+            return { ...classData, teacher: teacher?.display_name || [] };
+          }),
+        );
         // Fetch student counts for each class
         const classesWithCounts = await Promise.all(
-          (classesData || []).map(async (classData) => {
+          (classesWithTeachers || []).map(async (classData) => {
             const { count, error: countError } = await supabase
               .from("class_students")
               .select("*", { count: "exact", head: true })
@@ -88,7 +107,7 @@ export default function ClassesSection({
     }
 
     fetchClasses();
-  }, []);
+  }, [refetchTrigger]);
 
   if (loading) {
     return (
@@ -126,7 +145,7 @@ export default function ClassesSection({
             start managing your teaching materials.
           </p>
           <div className="max-w-xs mx-auto">
-            <AddClassCard role={role} />
+            {role !== "ta" && <AddClassCard role={role} />}
           </div>
         </div>
       </div>
@@ -140,9 +159,10 @@ export default function ClassesSection({
           key={classData.id}
           classData={classData}
           studentCount={classData.studentCount}
+          teacher={classData.teacher}
         />
       ))}
-      <AddClassCard role={role} />
+      {role !== "ta" && <AddClassCard role={role} />}
     </div>
   );
 }
