@@ -40,9 +40,9 @@ export function QueryInputToolbar({
           <button
             type="button"
             onClick={onStopRecording}
-            className="flex items-center gap-2 px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors"
+            className="flex items-center gap-1 px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors"
           >
-            <StopCircle className="w-4 h-4" /> Stop
+            <StopCircle className="w-3.5 h-3.5" /> Stop
           </button>
         </div>
       ) : (
@@ -64,7 +64,7 @@ export function QueryInputToolbar({
             onClick={onImageClick}
             disabled={!canAddMoreImages}
             className={cn(
-              "p-2 rounded-lg transition-colors",
+              "p-1.5 sm:p-2 rounded-lg transition-colors",
               !canAddMoreImages
                 ? "text-muted-foreground/30 cursor-not-allowed"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -73,7 +73,7 @@ export function QueryInputToolbar({
               !canAddMoreImages ? "Maximum images reached" : "Attach images"
             }
           >
-            <ImageIcon className="w-5 h-5" />
+            <ImageIcon className="w-4 sm:w-5 h-4 sm:h-5" />
           </button>
 
           {/* Voice Button */}
@@ -82,7 +82,7 @@ export function QueryInputToolbar({
             onClick={onStartRecording}
             disabled={hasVoiceNote}
             className={cn(
-              "p-2 rounded-lg transition-colors",
+              "p-1.5 sm:p-2 rounded-lg transition-colors",
               hasVoiceNote
                 ? "text-muted-foreground/30 cursor-not-allowed"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -91,7 +91,7 @@ export function QueryInputToolbar({
               hasVoiceNote ? "Voice note already recorded" : "Record voice note"
             }
           >
-            <Mic className="w-5 h-5" />
+            <Mic className="w-4 sm:w-5 h-4 sm:h-5" />
           </button>
         </div>
       )}

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -158,16 +157,19 @@ export function CreateQuery({ classId }: { classId: string }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground mb-1">
-            Ask a Question
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Get help from your teacher and classmates
-          </p>
+      <div className="flex items-center justify-between mb-4">
+        <div className="hidden sm:flex" />
+        <div className="sm:hidden">
+          <InputInfo
+            text={
+              isPrivate
+                ? "Only you and your teacher can see this question"
+                : "All students in the class can see and learn from this"
+            }
+          />
         </div>
-        <div className="flex justify-end">
+
+        <div className="flex items-center justify-end">
           <PrivacyToggle
             isPrivate={isPrivate}
             onToggle={() => setValue("isPrivate", !isPrivate)}
@@ -179,7 +181,6 @@ export function CreateQuery({ classId }: { classId: string }) {
       <div
         className={cn(
           "relative rounded-xl border bg-card transition-all shadow-sm",
-          "focus-within:ring-2 focus-within:ring-primary/10 focus-within:border-primary/50",
           errors.description && !hasVoiceNote
             ? "border-destructive/50"
             : "border-input",
@@ -198,7 +199,7 @@ export function CreateQuery({ classId }: { classId: string }) {
           onPaste={handlePaste}
           rows={5}
           placeholder={getPlaceholder()}
-          className="w-full bg-transparent px-4 py-3 text-sm lg:text-base outline-none resize-none placeholder:text-muted-foreground/50"
+          className="w-full bg-transparent px-4 py-3 text-xs sm:text-sm lg:text-base outline-none resize-none placeholder:text-muted-foreground/50"
           maxLength={MAX_DESCRIPTION_LENGTH}
         />
 
@@ -237,33 +238,39 @@ export function CreateQuery({ classId }: { classId: string }) {
 
       {/* Footer */}
       <div className="flex items-start justify-between gap-4">
-        <InputInfo
-          text={
-            isPrivate
-              ? "Only you and your teacher can see this question"
-              : "All students in the class can see and learn from this"
-          }
-        />
+        <div className="sm:hidden" />
+
+        <div className="hidden sm:flex">
+          <InputInfo
+            text={
+              isPrivate
+                ? "Only you and your teacher can see this question"
+                : "All students in the class can see and learn from this"
+            }
+          />
+        </div>
 
         {/* Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting || voiceRecorder.isRecording}
           className={cn(
-            "px-6 py-2.5 rounded-lg bg-ring text-white font-semibold shadow-sm transition-all",
-            "hover:shadow-md hover:scale-[1.02] active:scale-[0.98]",
-            "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
-            "flex items-center gap-2 whitespace-nowrap",
+            "px-6 py-2.5 relative group rounded-lg bg-ring text-xs sm:text-sm font-semibold text-white shadow-md transition-all",
+            "hover:-translate-y-0.5",
+            "flex items-center gap-2",
+            "active:translate-y-0 active:scale-[0.98]",
+            "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0",
+            "whitespace-nowrap",
           )}
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
               Submitting...
             </>
           ) : (
             <>
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5" />
               Submit Query
             </>
           )}
