@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare, Users, Plus, Search } from "lucide-react";
 
@@ -14,14 +13,14 @@ type Tab = {
 
 interface ClassTabsProps {
   role: Role;
-  onTabChange?: (tabId: string) => void;
-  defaultTab?: string;
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
 }
 
 export default function ClassTabs({
   role,
+  activeTab,
   onTabChange,
-  defaultTab = "queries",
 }: ClassTabsProps) {
   // Define tabs based on role
   const getTabs = (): Tab[] => {
@@ -44,12 +43,6 @@ export default function ClassTabs({
   };
 
   const tabs = getTabs();
-  const [activeTab, setActiveTab] = useState(defaultTab);
-
-  const handleTabClick = (tabId: string) => {
-    setActiveTab(tabId);
-    onTabChange?.(tabId);
-  };
 
   return (
     <div className="w-full border-b border-border bg-card">
@@ -63,7 +56,7 @@ export default function ClassTabs({
             return (
               <button
                 key={tab.id}
-                onClick={() => handleTabClick(tab.id)}
+                onClick={() => onTabChange(tab.id)}
                 className="relative px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg"
               >
                 {/* Icon */}
@@ -111,10 +104,10 @@ export default function ClassTabs({
             return (
               <button
                 key={tab.id}
-                onClick={() => handleTabClick(tab.id)}
+                onClick={() => onTabChange(tab.id)}
                 className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
+                    ? "bg-ring text-white shadow-sm"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted active:scale-95"
                 }`}
               >
