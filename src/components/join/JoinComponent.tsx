@@ -3,37 +3,40 @@
 import { motion } from "framer-motion";
 import { User, Sparkles } from "lucide-react";
 import { useState } from "react";
-import clsx from "clsx";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { ClassCodeInput } from "./ClassCodeInput";
 import { supabase } from "@/lib/supabase";
 import { ContinueButton } from "./ContinueButton";
 import { TextInput } from "./TextInput";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function JoinComponent() {
   const [displayName, setDisplayName] = useState("");
   const [classCode, setClassCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleJoinClass = async () => {
     if (!classCode) return;
+    setSubmitting(true);
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return;
     if (displayName) {
       const { error: userError } = await supabase
-        .from("update")
+        .from("users")
         .update({ full_name: displayName })
         .eq("id", user.id)
         .single();
       if (userError) {
-        console.error("Error updating user:", userError);
+        console.error("Error updating user:", userError.message);
+        toast.error("Something went wrong! Try again");
+        setSubmitting(false);
         return;
       }
     }
-
-    setSubmitting(true);
 
     const { data: classId } = await supabase
       .from("classes")
@@ -42,6 +45,8 @@ export default function JoinComponent() {
       .single();
     if (!classId) {
       console.error("Error fetching class:", classId);
+      toast.error("Something went wrong! Try again");
+      setSubmitting(false);
       return;
     }
 
@@ -50,10 +55,13 @@ export default function JoinComponent() {
       .insert({ class_id: classId.id, student_id: user.id });
     if (joinError) {
       console.error("Error joining class:", joinError);
+      toast.error("Something went wrong! Try again");
+      setSubmitting(false);
       return;
     }
 
     setSubmitting(false);
+    router.replace("/dashboard");
   };
 
   return (
