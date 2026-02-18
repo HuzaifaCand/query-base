@@ -56,7 +56,7 @@ const SidebarContent = ({ role }: { role: "teacher" | "student" }) => {
               key={href}
               href={href}
               className={cn(
-                "flex items-center justify-between gap-3 px-4 py-2 rounded-lg transition-colors duration-150 text-[13px] lg:text-xs font-semibold dark:font-medium",
+                "flex items-center justify-between gap-3 px-4 py-2 rounded-lg transition-colors duration-150 text-xs lg:text-sm font-semibold dark:font-medium",
                 isActive
                   ? "bg-muted/80 text-primary"
                   : "text-muted-foreground hover:bg-muted/80",
