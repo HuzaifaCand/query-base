@@ -110,7 +110,7 @@ export function QueryView({ query }: QueryViewProps) {
               "px-2.5 py-0.5 rounded-full text-xs font-medium border",
               query.status === "resolved"
                 ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800"
-                : "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800",
+                : "bg-ring/20 dark:bg-ring/10 text-ring border-ring/10",
             )}
           >
             {query.status.charAt(0).toUpperCase() + query.status.slice(1)}
