@@ -160,6 +160,7 @@ export default function ClassesSection({
           classData={classData}
           studentCount={classData.studentCount}
           teacher={classData.teacher}
+          role={role}
         />
       ))}
       {role !== "ta" && <AddClassCard role={role} />}

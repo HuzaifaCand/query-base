@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   BookOpen,
@@ -15,13 +14,11 @@ import {
   Users,
   GraduationCap,
   Copy,
-  Earth,
-  Sun,
   Apple,
 } from "lucide-react";
 import type { Tables } from "@/lib/databasetypes";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 // Subject to color and icon mapping
 const subjectConfig: Record<
@@ -103,21 +100,27 @@ interface ClassCardProps {
   classData: Tables<"classes">;
   studentCount?: number;
   teacher?: string;
+  role: "teacher" | "student" | "ta";
 }
 
 export default function ClassCard({
   classData,
   studentCount = 0,
   teacher,
+  role,
 }: ClassCardProps) {
   const subjectKey = classData.subject?.toLowerCase() || "default";
   const config = subjectConfig[subjectKey] || subjectConfig.default;
   const Icon = config.icon;
 
-  const router = useRouter();
-
   return (
-    <button onClick={() => router.push(`/teacher/${classData.id}`)}>
+    <Link
+      href={
+        role === "student"
+          ? `/dashboard/${classData.id}`
+          : `/teacher/${classData.id}`
+      }
+    >
       <motion.div
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -201,6 +204,7 @@ export default function ClassCard({
                 <Copy
                   className="w-4 h-4 text-muted-foreground hover:scale-107"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     navigator.clipboard.writeText(classData.class_code);
                     toast.success("Class code copied to clipboard");
@@ -214,6 +218,6 @@ export default function ClassCard({
         {/* Hover effect overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
       </motion.div>
-    </button>
+    </Link>
   );
 }
