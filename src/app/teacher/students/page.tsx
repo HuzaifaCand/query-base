@@ -1,4 +1,4 @@
-import AllStudentsComponent from "@/components/teacher/AllStudentsComponent";
+import { TeacherStudentsList } from "@/components/teacher/TeacherStudentsList";
 import SectionHeader from "@/components/ui/SectionHeader";
 
 export const metadata = {
@@ -10,7 +10,7 @@ export default function StudentsPage() {
   return (
     <div className="flex flex-col">
       <SectionHeader title="Your Students" />
-      <AllStudentsComponent />
+      <TeacherStudentsList />
     </div>
   );
 }
