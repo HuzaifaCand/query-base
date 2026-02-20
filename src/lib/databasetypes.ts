@@ -232,6 +232,7 @@ export type Database = {
           description: string | null;
           has_vn: boolean | null;
           id: string;
+          is_anonymous: boolean;
           is_private: boolean | null;
           status: string | null;
           student_id: string;
@@ -247,6 +248,7 @@ export type Database = {
           description?: string | null;
           has_vn?: boolean | null;
           id?: string;
+          is_anonymous?: boolean;
           is_private?: boolean | null;
           status?: string | null;
           student_id: string;
@@ -262,6 +264,7 @@ export type Database = {
           description?: string | null;
           has_vn?: boolean | null;
           id?: string;
+          is_anonymous?: boolean;
           is_private?: boolean | null;
           status?: string | null;
           student_id?: string;
