@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageSquare, Users, Plus, Search } from "lucide-react";
+import { MessageSquare, Users, Plus, Search, User } from "lucide-react";
 
 type Role = "student" | "teacher" | "ta";
 
@@ -34,6 +34,7 @@ export default function ClassTabs({
 
     if (role === "student") {
       baseTabs.push(
+        { id: "your-queries", label: "Your Queries", icon: User },
         { id: "new-query", label: "New Query", icon: Plus },
         { id: "browse", label: "Browse", icon: Search },
       );
