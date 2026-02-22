@@ -1,63 +1,89 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { QueryView } from "./QueryView";
 import { Loader2, MessageSquarePlus } from "lucide-react";
 import { Database } from "@/lib/databasetypes";
 import { toast } from "sonner";
 
-// Define the type for the query with included relations
-type QueryWithRelations = Database["public"]["Tables"]["queries"]["Row"] & {
-  student: Database["public"]["Tables"]["users"]["Row"] | null;
+type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
+  author: Database["public"]["Tables"]["users"]["Row"] | null;
   attachments: Database["public"]["Tables"]["attachments"]["Row"][];
 };
 
-export function AllQueriesList() {
-  const pathname = usePathname();
-  const classId = pathname?.split("/")[2]; // e.g. /dashboard/[classId] -> [classId]
+type QueryTag = {
+  tag_id: string;
+  tags: Database["public"]["Tables"]["tags"]["Row"] | null;
+};
 
+export type QueryWithRelations =
+  Database["public"]["Tables"]["queries"]["Row"] & {
+    student: Database["public"]["Tables"]["users"]["Row"] | null;
+    attachments: Database["public"]["Tables"]["attachments"]["Row"][];
+    answers: Answer[];
+    query_tags: QueryTag[];
+  };
+
+export function AllQueriesList({
+  role,
+  classId,
+}: {
+  role: "student" | "teacher" | "ta";
+  classId: string;
+}) {
   const [queries, setQueries] = useState<QueryWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Keep track of current query IDs to filter answer events locally
+  const queryIdsRef = useRef<Set<string>>(new Set());
+
+  const fetchQueries = useCallback(async () => {
+    if (!classId) return;
+    try {
+      const { data, error } = await supabase
+        .from("queries")
+        .select(
+          `
+          *,
+          student:users!student_id(*),
+          attachments(*),
+          answers(
+            *,
+            author:users!author_id(*),
+            attachments(*)
+          ),
+          query_tags(
+            tag_id,
+            tags(*)
+          )
+        `,
+        )
+        .eq("class_id", classId)
+        .order("created_at", { ascending: false })
+        .order("created_at", { referencedTable: "answers", ascending: true });
+
+      if (error) throw error;
+
+      if (data) {
+        setQueries(data as QueryWithRelations[]);
+        queryIdsRef.current = new Set(data.map((q) => q.id));
+      }
+    } catch (error) {
+      console.error("Error fetching queries:", error);
+      toast.error("Failed to load queries");
+    } finally {
+      setLoading(false);
+    }
+  }, [classId]);
 
   useEffect(() => {
     if (!classId) return;
 
-    const fetchQueries = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("queries")
-          .select(
-            `
-            *,
-            student:users!student_id(*),
-            attachments(*)
-          `,
-          )
-          .eq("class_id", classId)
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          throw error;
-        }
-
-        if (data) {
-          setQueries(data as QueryWithRelations[]);
-        }
-      } catch (error) {
-        console.error("Error fetching queries:", error);
-        toast.error("Failed to load queries");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchQueries();
 
-    // Subscribe to realtime changes (optional but good for UX)
     const channel = supabase
-      .channel("queries-changes")
+      .channel(`queries-changes-${classId}`)
       .on(
         "postgres_changes",
         {
@@ -67,8 +93,24 @@ export function AllQueriesList() {
           filter: `class_id=eq.${classId}`,
         },
         () => {
-          // Reload on changes
           fetchQueries();
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "answers",
+        },
+        (payload) => {
+          const newRecord = payload.new as { query_id?: string };
+          const oldRecord = payload.old as { query_id?: string };
+          const queryId = newRecord?.query_id || oldRecord?.query_id;
+
+          if (queryId && queryIdsRef.current.has(queryId)) {
+            fetchQueries();
+          }
         },
       )
       .subscribe();
@@ -76,7 +118,7 @@ export function AllQueriesList() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [classId]);
+  }, [classId, fetchQueries]);
 
   if (loading) {
     return (
@@ -103,9 +145,15 @@ export function AllQueriesList() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-5">
       {queries.map((query) => (
-        <QueryView key={query.id} query={query} />
+        <QueryView
+          classId={classId}
+          role={role}
+          key={query.id}
+          query={query}
+          onAnswered={fetchQueries}
+        />
       ))}
     </div>
   );
