@@ -1,222 +1,179 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Play, Pause, Image as ImageIcon, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { Database } from "@/lib/databasetypes";
+import { AnswerPanel } from "./AnswerPanel";
+import { AnswerView } from "./AnswerView";
+import { AttachmentList } from "./AttachmentList";
+import { UserHeader } from "./UserHeader";
+import { Lock, EyeOff } from "lucide-react";
+
+type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
+  author: Database["public"]["Tables"]["users"]["Row"] | null;
+  attachments: Database["public"]["Tables"]["attachments"]["Row"][];
+};
+
+type QueryTag = {
+  tag_id: string;
+  tags: Database["public"]["Tables"]["tags"]["Row"] | null;
+};
 
 type Query = Database["public"]["Tables"]["queries"]["Row"] & {
   student: Database["public"]["Tables"]["users"]["Row"] | null;
   attachments: Database["public"]["Tables"]["attachments"]["Row"][];
+  answers: Answer[];
+  query_tags: QueryTag[];
 };
 
 interface QueryViewProps {
   query: Query;
+  classId: string;
+  role: "student" | "teacher" | "ta";
+  onAnswered: () => void;
 }
 
-export function QueryView({ query }: QueryViewProps) {
-  const [attachmentUrls, setAttachmentUrls] = useState<Record<string, string>>(
-    {},
-  );
-  const [isPlaying, setIsPlaying] = useState<string | null>(null);
-  const [audioElements, setAudioElements] = useState<
-    Record<string, HTMLAudioElement>
-  >({});
+// ── Status badge config ────────────────────────────────────────────────────────
+const STATUS_STYLES: Record<string, string> = {
+  open: "bg-warning-medium/10 text-warning-medium border-warning-medium/30",
+  answered: "bg-ring/10 text-ring border-ring/20",
+  closed: "bg-muted text-muted-foreground border-border",
+};
 
-  useEffect(() => {
-    // Generate signed URLs for attachments
-    const fetchSignedUrls = async () => {
-      const urls: Record<string, string> = {};
+export function QueryView({
+  role,
+  classId,
+  query,
+  onAnswered,
+}: QueryViewProps) {
+  const isAnswered = !!query.answered_at;
+  const officialAnswer =
+    query.answers?.find((a) => a.is_official) ?? query.answers?.[0] ?? null;
 
-      for (const attachment of query.attachments) {
-        if (!attachment.file_path) continue;
+  const tags =
+    query.query_tags
+      ?.map((qt) => qt.tags)
+      .filter(
+        (t): t is Database["public"]["Tables"]["tags"]["Row"] => t !== null,
+      ) ?? [];
 
-        const { data, error } = await supabase.storage
-          .from("attachments")
-          .createSignedUrl(attachment.file_path, 3600); // 1 hour expiry
+  const statusKey = query.status ?? "open";
+  const statusLabel = statusKey.charAt(0).toUpperCase() + statusKey.slice(1);
+  const statusStyle = STATUS_STYLES[statusKey] ?? STATUS_STYLES["open"];
 
-        if (data?.signedUrl) {
-          urls[attachment.id] = data.signedUrl;
-        }
-      }
-      setAttachmentUrls(urls);
-    };
-
-    if (query.attachments?.length > 0) {
-      fetchSignedUrls();
-    }
-  }, [query.attachments]);
-
-  useEffect(() => {
-    return () => {
-      Object.values(audioElements).forEach((audio) => audio.pause());
-    };
-  }, [audioElements]);
-
-  const toggleAudio = (attachmentId: string, url: string) => {
-    if (isPlaying === attachmentId) {
-      audioElements[attachmentId]?.pause();
-      setIsPlaying(null);
-    } else {
-      // Stop currently playing audio if any
-      if (isPlaying && audioElements[isPlaying]) {
-        audioElements[isPlaying].pause();
-      }
-
-      const audio = audioElements[attachmentId] || new Audio(url);
-
-      if (!audioElements[attachmentId]) {
-        audio.onended = () => setIsPlaying(null);
-        setAudioElements((prev) => ({ ...prev, [attachmentId]: audio }));
-      }
-
-      audio.play();
-      setIsPlaying(attachmentId);
-    }
-  };
-
-  const images = query.attachments.filter((a) =>
-    a.file_type.startsWith("image/"),
-  );
-  const voiceNotes = query.attachments.filter((a) =>
-    a.file_type.startsWith("audio/"),
-  );
+  // Relative time
+  const timeAgo = query.created_at
+    ? formatDistanceToNow(new Date(query.created_at), { addSuffix: true })
+    : null;
 
   return (
-    <div className="bg-card border rounded-xl p-5 space-y-4 hover:border-primary/20 transition-colors">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg uppercase shrink-0">
-            {query.student?.full_name?.[0] || "?"}
-          </div>
-          <div>
-            <h3 className="font-semibold text-foreground">
-              {query.student?.full_name || "Unknown Student"}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {query.created_at &&
-                formatDistanceToNow(new Date(query.created_at), {
-                  addSuffix: true,
-                })}
-            </p>
+    <div
+      className={cn(
+        "group bg-card border border-border/60 rounded-2xl overflow-hidden",
+        "shadow-sm hover:shadow-md hover:border-primary/25",
+        "transition-all duration-200",
+      )}
+    >
+      <div className="pl-5 pr-5 pt-5 pb-4 sm:pl-6 sm:pr-6 sm:pt-5 space-y-4">
+        {/* ── Header ── */}
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <UserHeader
+            name={
+              query.is_anonymous
+                ? "Anonymous"
+                : query.student?.full_name || null
+            }
+            createdAt={query.created_at}
+            role="student"
+            size="md"
+          />
+
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
+            {/* Privacy / anon badges */}
+            {query.is_private && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-muted/60 text-muted-foreground border-border/60">
+                <Lock className="w-2.5 h-2.5" />
+                Private
+              </span>
+            )}
+            {query.is_anonymous && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-muted/60 text-muted-foreground border-border/60">
+                <EyeOff className="w-2.5 h-2.5" />
+                Anonymous
+              </span>
+            )}
+
+            {/* Status badge */}
+            {query.status && (
+              <span
+                className={cn(
+                  "px-2.5 py-0.5 rounded-full text-[10px] font-semibold border",
+                  statusStyle,
+                )}
+              >
+                {statusLabel}
+              </span>
+            )}
           </div>
         </div>
-        {query.status && (
-          <div
-            className={cn(
-              "px-2.5 py-0.5 rounded-full text-xs font-medium border",
-              query.status === "resolved"
-                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800"
-                : "bg-ring/20 dark:bg-ring/10 text-ring border-ring/10",
-            )}
-          >
-            {query.status.charAt(0).toUpperCase() + query.status.slice(1)}
+
+        {/* ── Body ── */}
+        <div className="space-y-1.5">
+          {query.title && (
+            <h4 className="font-semibold text-base sm:text-[17px] leading-snug text-foreground group-hover:text-primary transition-colors duration-150">
+              {query.title}
+            </h4>
+          )}
+          {query.description && (
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed line-clamp-5">
+              {query.description}
+            </p>
+          )}
+        </div>
+
+        {/* ── Attachments ── */}
+        <AttachmentList attachments={query.attachments} />
+
+        {/* ── Tags ── */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-0.5">
+            {tags.map((tag) => (
+              <span
+                key={tag.id}
+                className={cn(
+                  "inline-flex items-center px-2.5 py-0.5 rounded-full",
+                  "text-[11px] font-medium",
+                  "bg-ring/10 text-ring border border-ring/20",
+                  "dark:bg-ring/15 dark:border-ring/30",
+                )}
+              >
+                {tag.name}
+              </span>
+            ))}
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="space-y-3">
-        {query.title && <h4 className="font-medium text-lg">{query.title}</h4>}
-        {query.description && (
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-            {query.description}
-          </p>
-        )}
-      </div>
+      {/* ── Answer divider ── */}
+      {(isAnswered || role !== "student") && (
+        <div className="mx-5 sm:mx-6 border-t border-border/50" />
+      )}
 
-      {/* Attachments */}
-      {(images.length > 0 || voiceNotes.length > 0) && (
-        <div className="space-y-3 pt-2">
-          {/* Voice Notes */}
-          {voiceNotes.map((vn) => (
-            <div
-              key={vn.id}
-              className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50 max-w-md"
-            >
-              <button
-                onClick={() =>
-                  attachmentUrls[vn.id] &&
-                  toggleAudio(vn.id, attachmentUrls[vn.id])
-                }
-                disabled={!attachmentUrls[vn.id]}
-                className="h-10 w-10 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 disabled:opacity-50 transition-colors"
-              >
-                {!attachmentUrls[vn.id] ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : isPlaying === vn.id ? (
-                  <Pause className="h-4 w-4 fill-current" />
-                ) : (
-                  <Play className="h-4 w-4 fill-current ml-0.5" />
-                )}
-              </button>
-              <div className="flex-1 min-w-0">
-                <div className="h-8 flex items-center gap-1">
-                  {/* Visual representation of waveform - simplified */}
-                  {Array.from({ length: 24 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "w-1 rounded-full transition-all duration-300",
-                        isPlaying === vn.id
-                          ? "bg-primary animate-pulse"
-                          : "bg-muted-foreground/30",
-                      )}
-                      style={{
-                        height: `${Math.max(20, Math.random() * 100)}%`,
-                        animationDelay: `${i * 0.05}s`,
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-              <span className="text-xs font-medium text-muted-foreground tabular-nums">
-                Voice Note
-              </span>
-            </div>
-          ))}
+      {/* ── Official answer ── */}
+      {isAnswered && officialAnswer && (
+        <div className="px-5 sm:px-6 pb-5 pt-4">
+          <AnswerView answer={officialAnswer} />
+        </div>
+      )}
 
-          {/* Images Grid */}
-          {images.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {images.map((img) => (
-                <div
-                  key={img.id}
-                  className="group relative aspect-video rounded-lg overflow-hidden bg-muted border border-border/50"
-                >
-                  {attachmentUrls[img.id] ? (
-                    <img
-                      src={attachmentUrls[img.id]}
-                      alt="Attachment"
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
-                    </div>
-                  )}
-                  {attachmentUrls[img.id] && (
-                    <a
-                      href={attachmentUrls[img.id]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"
-                      aria-label="View full size"
-                    />
-                  )}
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="p-1.5 bg-black/50 rounded-full text-white backdrop-blur-sm">
-                      <ImageIcon className="w-3 h-3" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* ── Answer panel (teacher/TA only, unanswered) ── */}
+      {!isAnswered && role !== "student" && (
+        <div className="px-5 sm:px-6 pb-5 pt-4">
+          <AnswerPanel
+            classId={classId}
+            queryId={query.id}
+            onAnswered={onAnswered}
+          />
         </div>
       )}
     </div>
