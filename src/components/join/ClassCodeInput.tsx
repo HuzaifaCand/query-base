@@ -11,7 +11,7 @@ export function RequiredTag() {
 
 export function InputInfo({ text }: { text: string }) {
   return (
-    <p className="text-[11px] text-muted-foreground mt-2 ml-1 flex items-center gap-1.5">
+    <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-2 ml-1 flex items-center gap-1.5">
       <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground/50" />
       {text}
     </p>
