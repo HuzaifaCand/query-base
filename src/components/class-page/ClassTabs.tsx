@@ -24,23 +24,22 @@ export default function ClassTabs({
 }: ClassTabsProps) {
   // Define tabs based on role
   const getTabs = (): Tab[] => {
-    const baseTabs: Tab[] = [
+    const TeacherTabs: Tab[] = [
       { id: "queries", label: "Queries", icon: MessageSquare },
+      { id: "students", label: "Students", icon: Users },
     ];
 
-    if (role === "teacher" || role === "ta") {
-      baseTabs.push({ id: "students", label: "Students", icon: Users });
-    }
+    const StudentTabs: Tab[] = [
+      { id: "your-queries", label: "Your Queries", icon: User },
+      { id: "queries", label: "Queries", icon: MessageSquare },
+      { id: "new-query", label: "New Query", icon: Plus },
+    ];
 
     if (role === "student") {
-      baseTabs.push(
-        { id: "your-queries", label: "Your Queries", icon: User },
-        { id: "new-query", label: "New Query", icon: Plus },
-        { id: "browse", label: "Browse", icon: Search },
-      );
+      return StudentTabs;
     }
 
-    return baseTabs;
+    return TeacherTabs;
   };
 
   const tabs = getTabs();
