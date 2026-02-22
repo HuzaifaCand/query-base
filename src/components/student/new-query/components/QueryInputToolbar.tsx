@@ -27,7 +27,7 @@ export function QueryInputToolbar({
   onImageChange,
 }: QueryInputToolbarProps) {
   return (
-    <div className="border-t border-border p-2.5 flex items-center justify-between bg-muted/20 rounded-b-xl">
+    <div className="border-t border-border py-1.5 px-2.5 flex items-center justify-between bg-muted/20 rounded-b-xl">
       {isRecording ? (
         /* Recording UI */
         <div className="flex-1 flex items-center gap-3 px-2 animate-in fade-in slide-in-from-bottom-2">

@@ -19,7 +19,11 @@ export function PrivacyToggle({ isPrivate, onToggle }: PrivacyToggleProps) {
       )}
     >
       {isPrivate ? <Lock className="w-3 h-3" /> : <Globe className="w-3 h-3" />}
-      {isPrivate ? "Private" : "Public"}
+      {isPrivate ? (
+        <span className="mt-0.5">Private</span>
+      ) : (
+        <span className="mt-0.5">Public</span>
+      )}
     </button>
   );
 }
