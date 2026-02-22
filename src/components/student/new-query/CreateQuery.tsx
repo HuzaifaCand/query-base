@@ -235,7 +235,7 @@ export function CreateQuery({ classId }: { classId: string }) {
                       : "bg-transparent text-muted-foreground border-border hover:border-ring/60 hover:text-foreground",
                   )}
                 >
-                  + {tag.name}
+                  {tag.name}
                 </button>
               );
             })}
