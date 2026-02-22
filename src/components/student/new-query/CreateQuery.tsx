@@ -1,31 +1,76 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createQuerySchema,
   CreateQueryFormData,
 } from "@/lib/validations/query";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Tag, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { InputInfo } from "@/components/join/ClassCodeInput";
+import { supabase } from "@/lib/supabase";
+import { Tables } from "@/lib/databasetypes";
 
 // Hooks
-import { useVoiceRecorder } from "./hooks/useVoiceRecorder";
-import { useImageUpload } from "./hooks/useImageUpload";
-import { useQuerySubmit } from "./hooks/useQuerySubmit";
+import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { useSubmit } from "@/hooks/useSubmit";
+import { useQueryInputHandlers } from "@/hooks/useQueryInputHandlers";
 
 // Components
-import { ImagePreview } from "./components/ImagePreview";
-import { VoiceNotePreview } from "./components/VoiceNotePreview";
-import { QueryInputToolbar } from "./components/QueryInputToolbar";
 import { PrivacyToggle } from "./components/PrivacyToggle";
+import { AnonymousToggle } from "./components/AnonymousToggle";
+import { InputArea } from "./components/InputArea";
+
+type Tag = Tables<"tags">;
 
 const MAX_DESCRIPTION_LENGTH = 1500;
 
+const TITLE_PLACEHOLDERS = [
+  "e.g. Query about lecture 17",
+  "e.g. Past paper question on integration",
+  "e.g. Confused about the chain rule example",
+  "e.g. Practice problem from chapter 5",
+  "e.g. Derivation from yesterday's class",
+  "e.g. Unsure about the last step in proof 3",
+  "e.g. Question on the May 2022 past paper",
+];
+
 export function CreateQuery({ classId }: { classId: string }) {
-  const { submitQuery, isSubmitting } = useQuerySubmit(classId);
+  // Pick a random title placeholder once per mount
+  const titlePlaceholder = useMemo(
+    () =>
+      TITLE_PLACEHOLDERS[Math.floor(Math.random() * TITLE_PLACEHOLDERS.length)],
+    [],
+  );
+  const { submitQuery, isSubmitting } = useSubmit();
+
+  // Tag state
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [tagsLoading, setTagsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTags() {
+      setTagsLoading(true);
+      const { data, error } = await supabase
+        .from("tags")
+        .select("*")
+        .eq("class_id", classId)
+        .order("name");
+
+      if (error) {
+        console.error("Failed to load tags:", error);
+        toast.error("Could not load tags. Please refresh and try again.");
+      } else {
+        setAvailableTags(data ?? []);
+      }
+      setTagsLoading(false);
+    }
+    fetchTags();
+  }, [classId]);
 
   const {
     register,
@@ -42,21 +87,30 @@ export function CreateQuery({ classId }: { classId: string }) {
       hasVoiceNote: false,
       isPrivate: false,
       images: [],
+      isAnonymous: false,
+      tags: [],
     },
   });
 
   const isPrivate = watch("isPrivate");
+  const isAnonymous = watch("isAnonymous");
   const images = watch("images");
   const hasVoiceNote = watch("hasVoiceNote");
+  const selectedTags = watch("tags");
 
-  // Voice recording hook
   const voiceRecorder = useVoiceRecorder();
-
-  // Image upload hook
   const imageUpload = useImageUpload(images, setValue);
 
+  const toggleTag = (tagId: string) => {
+    const current = selectedTags ?? [];
+    const updated = current.includes(tagId)
+      ? current.filter((id) => id !== tagId)
+      : [...current, tagId];
+    setValue("tags", updated, { shouldValidate: true });
+  };
+
   const onSubmit: SubmitHandler<CreateQueryFormData> = async (data) => {
-    const success = await submitQuery(data, voiceRecorder.audioBlob);
+    const success = await submitQuery(classId, data, voiceRecorder.audioBlob);
 
     if (success) {
       toast.success("Query submitted successfully!");
@@ -64,112 +118,37 @@ export function CreateQuery({ classId }: { classId: string }) {
       // Reset everything
       reset();
       voiceRecorder.deleteVoiceNote();
-
-      // Optional: Navigation
-      // router.push(`/dashboard/${classId}`);
     }
   };
 
-  // Handle voice recording start with form update
-  const handleStartRecording = async () => {
-    await voiceRecorder.startRecording();
-  };
-
-  // Handle voice recording stop with form update
-  const handleStopRecording = () => {
-    voiceRecorder.stopRecording();
-    setValue("hasVoiceNote", true, { shouldValidate: true });
-    trigger("description");
-  };
-
-  // Handle voice note deletion with form update
-  const handleDeleteVoiceNote = () => {
-    voiceRecorder.deleteVoiceNote();
-    setValue("hasVoiceNote", false, { shouldValidate: true });
-  };
-
-  const handleDescriptionChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-  ) => {
-    const value = e.target.value;
-    if (value.length > MAX_DESCRIPTION_LENGTH) {
-      toast.error(
-        `Description cannot exceed ${MAX_DESCRIPTION_LENGTH} characters`,
-      );
-      return;
-    }
-    setValue("description", value, { shouldValidate: true });
-  };
-
-  const getPlaceholder = () => {
-    if (hasVoiceNote) {
-      return "Add more context to your voice note (optional)...";
-    }
-    if (images && images.length > 0) {
-      return "Describe what you need help with...";
-    }
-    return "Describe your question, attach images (Ctrl+V to paste), or record a voice note...";
-  };
-
-  // Handle paste event for images
-  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-
-    const imageFiles: File[] = [];
-
-    // Extract image files from clipboard
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.startsWith("image/")) {
-        const file = item.getAsFile();
-        if (file) {
-          imageFiles.push(file);
-        }
-      }
-    }
-
-    if (imageFiles.length === 0) return;
-
-    // Prevent default paste behavior for images
-    e.preventDefault();
-
-    const currentImages = images || [];
-    const maxImages = imageUpload.maxImages;
-
-    if (currentImages.length >= maxImages) {
-      toast.error(`Maximum ${maxImages} images allowed`);
-      return;
-    }
-
-    const availableSlots = maxImages - currentImages.length;
-    const filesToAdd = imageFiles.slice(0, availableSlots);
-
-    if (imageFiles.length > availableSlots) {
-      toast.error(`Only ${availableSlots} more image(s) can be added`);
-    }
-
-    setValue("images", [...currentImages, ...filesToAdd], {
-      shouldValidate: true,
-    });
-  };
+  const {
+    handleStartRecording,
+    handleStopRecording,
+    handleDeleteVoiceNote,
+    handleTextChange,
+    handlePaste,
+    getPlaceholder,
+  } = useQueryInputHandlers({
+    type: "query",
+    voiceRecorder,
+    imageUpload,
+    hasVoiceNote,
+    images,
+    setValue,
+    trigger,
+  });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="hidden sm:flex" />
-        <div className="sm:hidden">
-          <InputInfo
-            text={
-              isPrivate
-                ? "Only you and your teacher can see this question"
-                : "All students in the class can see and learn from this"
-            }
-          />
-        </div>
-
-        <div className="flex items-center justify-end">
+      <div className="mb-4">
+        <div className="flex items-center justify-end gap-2">
+          {!isPrivate && (
+            <AnonymousToggle
+              isAnonymous={isAnonymous}
+              onToggle={() => setValue("isAnonymous", !isAnonymous)}
+            />
+          )}
           <PrivacyToggle
             isPrivate={isPrivate}
             onToggle={() => setValue("isPrivate", !isPrivate)}
@@ -177,68 +156,103 @@ export function CreateQuery({ classId }: { classId: string }) {
         </div>
       </div>
 
-      {/* UNIFIED INPUT AREA */}
-      <div
-        className={cn(
-          "relative rounded-xl border bg-card transition-all shadow-sm",
-          errors.description && !hasVoiceNote
-            ? "border-destructive/50"
-            : "border-input",
-        )}
-      >
-        {/* Image Preview - Above Textarea */}
-        <ImagePreview
-          images={images || []}
-          onRemove={imageUpload.removeImage}
+      {/* ── Optional Title ── */}
+      <div className="space-y-1 mb-4">
+        <input
+          {...register("title")}
+          type="text"
+          id="query-title"
+          placeholder={titlePlaceholder}
+          maxLength={120}
+          className={cn(
+            "w-full bg-transparent text-sm font-medium placeholder:text-muted-foreground/50",
+            "border-0 border-b border-border/50 focus:border-ring/50 pb-1.5",
+            "outline-none transition-colors duration-150",
+            "text-foreground",
+          )}
         />
-
-        {/* Text Area */}
-        <textarea
-          {...register("description")}
-          onChange={handleDescriptionChange}
-          onPaste={handlePaste}
-          rows={5}
-          placeholder={getPlaceholder()}
-          className="w-full bg-transparent px-4 py-3 text-xs sm:text-sm lg:text-base outline-none resize-none placeholder:text-muted-foreground/50"
-          maxLength={MAX_DESCRIPTION_LENGTH}
-        />
-
-        {/* Voice Note Preview - Below Textarea */}
-        {hasVoiceNote && (
-          <VoiceNotePreview
-            duration={voiceRecorder.displayTime}
-            isPlaying={voiceRecorder.isPlaying}
-            onTogglePlayback={voiceRecorder.togglePlayback}
-            onDelete={handleDeleteVoiceNote}
-            formatTime={voiceRecorder.formatTime}
-          />
-        )}
-
-        {/* Toolbar / Recording State */}
-        <QueryInputToolbar
-          isRecording={voiceRecorder.isRecording}
-          recordingDuration={voiceRecorder.recordingDuration}
-          hasVoiceNote={hasVoiceNote}
-          canAddMoreImages={imageUpload.canAddMore}
-          onStartRecording={handleStartRecording}
-          onStopRecording={handleStopRecording}
-          onImageClick={imageUpload.triggerFileInput}
-          formatTime={voiceRecorder.formatTime}
-          fileInputRef={imageUpload.fileInputRef}
-          onImageChange={imageUpload.handleImageSelect}
-        />
+        <p className="flex items-center justify-end gap-1 mt-1 text-[11px] text-muted-foreground/70">
+          <Lightbulb className="w-3 h-3 shrink-0" />
+          Optional — a clear title helps your teacher respond faster
+        </p>
       </div>
 
-      {/* Validation Error */}
+      {/* UNIFIED INPUT AREA */}
+      <InputArea
+        voiceRecorder={voiceRecorder}
+        imageUpload={imageUpload}
+        errors={errors}
+        hasVoiceNote={hasVoiceNote}
+        images={images}
+        register={register}
+        handleTextChange={handleTextChange}
+        handlePaste={handlePaste}
+        getPlaceholder={getPlaceholder}
+        handleDeleteVoiceNote={handleDeleteVoiceNote}
+        handleStartRecording={handleStartRecording}
+        handleStopRecording={handleStopRecording}
+        maxLength={MAX_DESCRIPTION_LENGTH}
+        queryPanel={true}
+      />
+
+      {/* Validation Error – description */}
       {errors.description && !hasVoiceNote && (
         <p className="text-xs text-destructive flex items-center gap-1 px-1">
           Please provide a description or record a voice note
         </p>
       )}
 
+      {/* ── TAG PICKER ── */}
+      <div className="pt-1 pb-0.5 space-y-2">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+          <Tag className="w-3.5 h-3.5 shrink-0" />
+          <span>Select topic tags </span>
+        </div>
+
+        {tagsLoading ? (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            Loading tags…
+          </div>
+        ) : availableTags.length === 0 ? (
+          <p className="text-xs text-muted-foreground italic">
+            No tags have been set up for this class yet.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {availableTags.map((tag) => {
+              const isSelected = (selectedTags ?? []).includes(tag.id);
+              return (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => toggleTag(tag.id)}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    isSelected
+                      ? "bg-ring text-white border-ring shadow-sm"
+                      : "bg-transparent text-muted-foreground border-border hover:border-ring/60 hover:text-foreground",
+                  )}
+                >
+                  + {tag.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Tag validation error */}
+        {errors.tags && (
+          <p className="text-xs text-destructive flex items-center gap-1">
+            {errors.tags.message ?? "Please select at least one tag"}
+          </p>
+        )}
+      </div>
+
       {/* Footer */}
       <div className="flex items-start justify-between gap-4">
-        <div className="sm:hidden" />
+        <div className="sm:hidden flex" />
 
         <div className="hidden sm:flex">
           <InputInfo
@@ -251,30 +265,32 @@ export function CreateQuery({ classId }: { classId: string }) {
         </div>
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting || voiceRecorder.isRecording}
-          className={cn(
-            "px-6 py-2.5 relative group rounded-lg bg-ring text-xs sm:text-sm font-semibold text-white shadow-md transition-all",
-            "hover:-translate-y-0.5",
-            "flex items-center gap-2",
-            "active:translate-y-0 active:scale-[0.98]",
-            "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0",
-            "whitespace-nowrap",
-          )}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            <>
-              <Send className="w-3.5 h-3.5" />
-              Submit Query
-            </>
-          )}
-        </button>
+        <div className="sm:mt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting || voiceRecorder.isRecording}
+            className={cn(
+              "px-6 py-2.5 relative group rounded-lg bg-ring text-xs sm:text-sm font-semibold text-white shadow-md transition-all",
+              "hover:-translate-y-0.5",
+              "flex items-center gap-2",
+              "active:translate-y-0 active:scale-[0.98]",
+              "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0",
+              "whitespace-nowrap",
+            )}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Send className="w-3.5 h-3.5" />
+                Submit Query
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </form>
   );
