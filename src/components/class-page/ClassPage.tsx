@@ -56,7 +56,7 @@ export function ClassPage({ role }: { role: "student" | "teacher" | "ta" }) {
         {role === "student" ? (
           <StudentTabs activeTab={activeTab} classId={classId} />
         ) : (
-          <TeacherTabs activeTab={activeTab} />
+          <TeacherTabs activeTab={activeTab} classId={classId} />
         )}
       </div>
     </div>
