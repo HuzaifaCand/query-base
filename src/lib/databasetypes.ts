@@ -296,6 +296,99 @@ export type Database = {
           },
         ];
       };
+      resource_folders: {
+        Row: {
+          class_id: string;
+          created_at: string | null;
+          id: string;
+          name: string;
+          parent_id: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          class_id: string;
+          created_at?: string | null;
+          id?: string;
+          name: string;
+          parent_id?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          class_id?: string;
+          created_at?: string | null;
+          id?: string;
+          name?: string;
+          parent_id?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "resource_folders_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "resource_folders_parent_id_fkey";
+            columns: ["parent_id"];
+            isOneToOne: false;
+            referencedRelation: "resource_folders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      resources: {
+        Row: {
+          class_id: string;
+          content_category: string | null;
+          created_at: string | null;
+          file_format: string;
+          file_path: string;
+          folder_id: string | null;
+          id: string;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          class_id: string;
+          content_category?: string | null;
+          created_at?: string | null;
+          file_format: string;
+          file_path: string;
+          folder_id?: string | null;
+          id?: string;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          class_id?: string;
+          content_category?: string | null;
+          created_at?: string | null;
+          file_format?: string;
+          file_path?: string;
+          folder_id?: string | null;
+          id?: string;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "resources_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "resources_folder_id_fkey";
+            columns: ["folder_id"];
+            isOneToOne: false;
+            referencedRelation: "resource_folders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       users: {
         Row: {
           created_at: string | null;
