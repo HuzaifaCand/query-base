@@ -296,6 +296,39 @@ export type Database = {
           },
         ];
       };
+      query_tags: {
+        Row: {
+          added_at: string | null;
+          query_id: string;
+          tag_id: string;
+        };
+        Insert: {
+          added_at?: string | null;
+          query_id: string;
+          tag_id: string;
+        };
+        Update: {
+          added_at?: string | null;
+          query_id?: string;
+          tag_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "query_tags_query_id_fkey";
+            columns: ["query_id"];
+            isOneToOne: false;
+            referencedRelation: "queries";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "query_tags_tag_id_fkey";
+            columns: ["tag_id"];
+            isOneToOne: false;
+            referencedRelation: "tags";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       resource_folders: {
         Row: {
           class_id: string;
@@ -385,6 +418,35 @@ export type Database = {
             columns: ["folder_id"];
             isOneToOne: false;
             referencedRelation: "resource_folders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tags: {
+        Row: {
+          class_id: string;
+          created_at: string | null;
+          id: string;
+          name: string;
+        };
+        Insert: {
+          class_id: string;
+          created_at?: string | null;
+          id?: string;
+          name: string;
+        };
+        Update: {
+          class_id?: string;
+          created_at?: string | null;
+          id?: string;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tags_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
             referencedColumns: ["id"];
           },
         ];
