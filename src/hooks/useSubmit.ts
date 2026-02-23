@@ -93,6 +93,15 @@ export function useSubmit() {
 
       await Promise.all(uploadPromises);
 
+      // notify teachers about the new query
+      fetch("/api/notify-new-query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ queryId, classId }),
+      }).catch((err) =>
+        console.error("Failed to send new-query notification:", err),
+      );
+
       // Insert query_tags rows for each selected tag
       if (data.tags && data.tags.length > 0) {
         const { error: tagsError } = await supabase.from("query_tags").insert(
@@ -183,6 +192,15 @@ export function useSubmit() {
         .eq("id", queryId);
 
       if (updateQueryError) throw updateQueryError;
+
+      // Fire-and-forget: notify the student their query has been answered
+      fetch("/api/notify-answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ queryId, answerId }),
+      }).catch((err) =>
+        console.error("Failed to send answer notification:", err),
+      );
 
       return true;
     } catch (error) {
