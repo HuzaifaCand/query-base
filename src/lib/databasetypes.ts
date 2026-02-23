@@ -50,6 +50,20 @@ export type Database = {
             foreignKeyName: "answers_author_id_fkey";
             columns: ["author_id"];
             isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "answers_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
+          },
+          {
+            foreignKeyName: "answers_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
           },
@@ -135,6 +149,20 @@ export type Database = {
             foreignKeyName: "class_students_student_id_fkey";
             columns: ["student_id"];
             isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "class_students_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
+          },
+          {
+            foreignKeyName: "class_students_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
           },
@@ -166,6 +194,20 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "classes";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
           },
           {
             foreignKeyName: "class_teachers_teacher_id_fkey";
@@ -211,6 +253,20 @@ export type Database = {
           updated_at?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "classes_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "classes_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
+          },
           {
             foreignKeyName: "classes_created_by_fkey";
             columns: ["created_by"];
@@ -274,6 +330,20 @@ export type Database = {
             foreignKeyName: "queries_answered_by_fkey";
             columns: ["answered_by"];
             isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "queries_answered_by_fkey";
+            columns: ["answered_by"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
+          },
+          {
+            foreignKeyName: "queries_answered_by_fkey";
+            columns: ["answered_by"];
+            isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
           },
@@ -283,6 +353,20 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "classes";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "queries_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "queries_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
           },
           {
             foreignKeyName: "queries_student_id_fkey";
@@ -477,7 +561,36 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      student_stats: {
+        Row: {
+          answers_received: number | null;
+          full_name: string | null;
+          queries_asked: number | null;
+          student_id: string | null;
+        };
+        Relationships: [];
+      };
+      teacher_stats: {
+        Row: {
+          full_name: string | null;
+          queries_resolved: number | null;
+          teacher_id: string | null;
+          total_unique_students: number | null;
+        };
+        Insert: {
+          full_name?: string | null;
+          queries_resolved?: never;
+          teacher_id?: string | null;
+          total_unique_students?: never;
+        };
+        Update: {
+          full_name?: string | null;
+          queries_resolved?: never;
+          teacher_id?: string | null;
+          total_unique_students?: never;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       [_ in never]: never;
