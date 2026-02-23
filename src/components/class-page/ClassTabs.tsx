@@ -5,7 +5,7 @@ import { MessageSquare, Users, Plus, Search, User } from "lucide-react";
 
 type Role = "student" | "teacher" | "ta";
 
-type Tab = {
+export type Tab = {
   id: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -30,9 +30,9 @@ export default function ClassTabs({
     ];
 
     const StudentTabs: Tab[] = [
-      { id: "your-queries", label: "Your Queries", icon: User },
-      { id: "queries", label: "Queries", icon: MessageSquare },
+      { id: "queries", label: "Class Queries", icon: MessageSquare },
       { id: "new-query", label: "New Query", icon: Plus },
+      { id: "your-queries", label: "Your Queries", icon: User },
     ];
 
     if (role === "student") {

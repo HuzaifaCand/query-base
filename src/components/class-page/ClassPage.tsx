@@ -32,7 +32,7 @@ export function ClassPage({ role }: { role: "student" | "teacher" | "ta" }) {
         .single();
 
       if (error) {
-        console.error("Error fetching class:", error);
+        console.error("Error fetching class:", error.message);
         return;
       }
 
