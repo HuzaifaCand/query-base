@@ -11,9 +11,11 @@ import {
   Search,
   X,
   SlidersHorizontal,
+  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuerySearch } from "@/hooks/useQuerySearch";
+import { useRouter } from "next/navigation";
 
 type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
   author: Database["public"]["Tables"]["users"]["Row"] | null;
@@ -139,6 +141,8 @@ export function AllQueriesList({
     };
   }, [classId, fetchQueries]);
 
+  const router = useRouter();
+
   if (loading) {
     return (
       <div className="flex h-[200px] w-full items-center justify-center text-muted-foreground">
@@ -154,11 +158,22 @@ export function AllQueriesList({
           <MessageSquarePlus className="h-8 w-8 text-muted-foreground" />
         </div>
         <h3 className="text-lg font-semibold text-foreground">
-          No queries yet
+          No queries in this class yet
         </h3>
-        <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
-          Be the first to ask a question in this class!
-        </p>
+        {role === "student" && (
+          <div className="mt-2">
+            <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
+              Be the first to ask a question in this class!
+            </p>
+            <button
+              type="button"
+              onClick={() => router.replace(`?tab=new-query`)}
+              className="text-xs font-medium text-ring hover:underline"
+            >
+              Ask a Question
+            </button>
+          </div>
+        )}
       </div>
     );
   }

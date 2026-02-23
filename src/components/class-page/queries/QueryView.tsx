@@ -70,7 +70,7 @@ export function QueryView({
     <div
       className={cn(
         "group bg-card border border-border/60 rounded-2xl overflow-hidden",
-        "shadow-sm hover:shadow-md hover:border-primary/25",
+        "shadow-sm hover:shadow-md",
         "transition-all duration-200",
       )}
     >
