@@ -6,10 +6,13 @@
     "dev": "next dev -p 4000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "email": "email dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@react-email/components": "1.0.8",
+    "@react-email/tailwind": "2.0.5",
     "@supabase/ssr": "^0.8.0",
     "@tailwindcss/postcss": "^4.1.18",
     "clsx": "^2.1.1",
@@ -23,6 +26,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
+    "resend": "^6.9.2",
     "sonner": "^2.0.7",
     "supabase-js": "^0.0.1-security",
     "tailwind-merge": "^3.4.0",
@@ -31,11 +35,13 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@react-email/preview-server": "^5.2.8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint": "^10.0.1",
+    "eslint-config-next": "^0.2.4",
+    "react-email": "5.2.8",
     "supabase": "^2.76.8",
     "typescript": "^5"
   }
