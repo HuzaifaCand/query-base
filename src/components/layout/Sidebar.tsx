@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, X, Users2 } from "lucide-react";
+import { LayoutDashboard, X, Users2, UserCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "../theme/ThemeToggle";
@@ -19,10 +19,12 @@ type NavItem = {
 const teacherRoutes: NavItem[] = [
   { label: "Overview", href: "/teacher", icon: LayoutDashboard },
   { label: "Students", href: "/teacher/students", icon: Users2 },
+  { label: "Profile", href: "/teacher/profile", icon: UserCircle },
 ];
 
 const studentRoutes: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Profile", href: "/dashboard/profile", icon: UserCircle },
 ];
 
 interface SidebarProps {
@@ -75,7 +77,6 @@ const SidebarContent = ({ role }: { role: "teacher" | "student" }) => {
           <SidebarClasses role={role} />
         </div>
       </nav>
-      {/* Optional User Profile Section at bottom could go here */}
     </div>
   );
 };
