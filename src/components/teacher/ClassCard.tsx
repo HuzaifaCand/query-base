@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 
 // Subject to color and icon mapping
-const subjectConfig: Record<
+export const subjectConfig: Record<
   string,
   { gradient: string; icon: React.ComponentType<{ className?: string }> }
 > = {

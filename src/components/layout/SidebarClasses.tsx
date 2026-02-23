@@ -3,98 +3,12 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import {
-  BookOpen,
-  Calculator,
-  Beaker,
-  Globe,
-  Palette,
-  Music,
-  Code,
-  Brain,
-  Languages,
-  GraduationCap,
-  Loader,
-  Apple,
-} from "lucide-react";
+import { Loader } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/lib/databasetypes";
 import { cn } from "@/lib/utils";
 import { useClasses } from "@/contexts/ClassesContext";
-
-const subjectConfig: Record<
-  string,
-  { gradient: string; icon: React.ComponentType<{ className?: string }> }
-> = {
-  mathematics: {
-    gradient: "from-blue-500/60 to-indigo-600/60",
-    icon: Calculator,
-  },
-  math: {
-    gradient: "from-blue-500/60 to-indigo-600/60",
-    icon: Calculator,
-  },
-  science: {
-    gradient: "from-green-500/60 to-emerald-600/60",
-    icon: Beaker,
-  },
-  physics: {
-    gradient: "from-purple-500/60 to-violet-600/60",
-    icon: Apple,
-  },
-  chemistry: {
-    gradient: "from-pink-500/60 to-rose-600/60",
-    icon: Beaker,
-  },
-  biology: {
-    gradient: "from-teal-500/60 to-cyan-600/60",
-    icon: Beaker,
-  },
-  english: {
-    gradient: "from-amber-500/60 to-orange-600/60",
-    icon: BookOpen,
-  },
-  literature: {
-    gradient: "from-amber-500/60 to-orange-600/60",
-    icon: BookOpen,
-  },
-  history: {
-    gradient: "from-yellow-500/60 to-amber-600/60",
-    icon: Globe,
-  },
-  geography: {
-    gradient: "from-emerald-500/60 to-green-600/60",
-    icon: Globe,
-  },
-  art: {
-    gradient: "from-fuchsia-500/60 to-pink-600/60",
-    icon: Palette,
-  },
-  music: {
-    gradient: "from-violet-500/60 to-purple-600/60",
-    icon: Music,
-  },
-  "computer science": {
-    gradient: "from-slate-500/60 to-gray-700/60",
-    icon: Code,
-  },
-  programming: {
-    gradient: "from-slate-500/60 to-gray-700/60",
-    icon: Code,
-  },
-  psychology: {
-    gradient: "from-indigo-500/60 to-blue-600/60",
-    icon: Brain,
-  },
-  language: {
-    gradient: "from-cyan-500/60 to-blue-600/60",
-    icon: Languages,
-  },
-  default: {
-    gradient: "from-gray-500/60 to-slate-600/60",
-    icon: GraduationCap,
-  },
-};
+import { subjectConfig } from "@/components/teacher/ClassCard";
 
 interface SidebarClassesProps {
   role: "teacher" | "student";
@@ -199,35 +113,19 @@ export default function SidebarClasses({ role }: SidebarClassesProps) {
                 <div
                   className={`bg-gradient-to-br ${isActive ? config.gradient : "bg-muted dark:hover:bg-ring/40 hover:bg-ring/20"} transition-all duration-150 relative overflow-hidden`}
                 >
-                  {!isActive && (
-                    <div
-                      className={`absolute top-0 right-0 w-16 h-16 rounded-full -translate-y-8 translate-x-8 bg-primary opacity-10 ${isActive ? "" : "group-hover:bg-ring dark:group-hover:opacity-100 group-hover:opacity-40 transition-all duration-150"}`}
-                    />
-                  )}
-                  {isActive && (
-                    <div className={`absolute inset-0 opacity-10`}>
-                      <div
-                        className={`absolute top-0 right-0 w-16 h-16 rounded-full -translate-y-8 translate-x-8 bg-white`}
-                      />
-                      <div
-                        className={`absolute bottom-0 left-0 w-12 h-12 rounded-full translate-y-6 -translate-x-6 bg-white`}
-                      />
-                    </div>
-                  )}
-
                   <div className="flex items-center gap-2 px-2 py-2">
                     <div
-                      className={`p-1.5 bg-white/20 ${!isActive ? "dark:group-hover:bg-ring group-hover:bg-ring/40 text-white transition-all duration-150" : ""} backdrop-blur-sm rounded-md`}
+                      className={`p-1.5 bg-white/20 ${!isActive ? "dark:group-hover:bg-ring text-white transition-all duration-150" : ""} backdrop-blur-sm rounded-md`}
                     >
                       <Icon
                         className={`w-3 h-3 ${isActive ? "text-white" : "text-primary"}`}
                       />
                     </div>
-                    <span
-                      className={`text-xs ${isActive ? "dark:text-primary text-white font-semibold" : "text-primary font-medium dark:font-light"} truncate drop-shadow-sm`}
+                    <div
+                      className={`text-xs ${isActive ? "dark:text-primary text-white font-semibold" : "text-primary font-medium dark:font-light"} truncate drop-shadow-sm mt-0.5`}
                     >
                       {classData.name}
-                    </span>
+                    </div>
                   </div>
                 </div>
               </Link>
