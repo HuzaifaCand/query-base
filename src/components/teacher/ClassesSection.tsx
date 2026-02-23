@@ -66,18 +66,29 @@ export default function ClassesSection({
 
         const classesWithTeachers = await Promise.all(
           (classesData || []).map(async (classData) => {
-            const { data: teacher, error: teachersError } = await supabase
-              .from("class_teachers")
-              .select("display_name") //teacher name
-              .eq("class_id", classData.id)
-              .maybeSingle();
-
-            if (teachersError) {
-              console.error("Error fetching teachers:", teachersError);
-              return { ...classData, teacher: [] };
+            if (!classData.created_by) {
+              return { ...classData, teacher: "Unknown Teacher" };
             }
 
-            return { ...classData, teacher: teacher?.display_name || [] };
+            const { data: teacherUser, error: teacherUserError } =
+              await supabase
+                .from("users")
+                .select("full_name")
+                .eq("id", classData.created_by)
+                .maybeSingle();
+
+            if (teacherUserError) {
+              console.error(
+                "Error fetching teacher details:",
+                teacherUserError,
+              );
+              return { ...classData, teacher: "Unknown Teacher" };
+            }
+
+            return {
+              ...classData,
+              teacher: teacherUser?.full_name || "Unknown Teacher",
+            };
           }),
         );
         // Fetch student counts for each class
