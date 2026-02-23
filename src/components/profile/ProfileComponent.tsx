@@ -14,6 +14,7 @@ import type {
   StudentStats,
   TeacherStats,
 } from "./types";
+import SectionHeader from "../ui/SectionHeader";
 
 interface ProfileComponentProps {
   role: Role;
@@ -107,19 +108,22 @@ export default function ProfileComponent({ role }: ProfileComponentProps) {
   }
 
   return (
-    <div className="space-y-6 pb-12">
-      <IdentitySection
-        user={user}
-        role={role}
-        onNameUpdate={handleNameUpdate}
-      />
-      <ClassMembershipsSection classes={classes} />
-      <ActivitySummarySection
-        role={role}
-        studentStats={studentStats}
-        teacherStats={teacherStats}
-      />
-      <SupportAndLegalSection role={role} />
-    </div>
+    <>
+      <SectionHeader title="Profile" />
+      <div className="space-y-6 pb-12">
+        <IdentitySection
+          user={user}
+          role={role}
+          onNameUpdate={handleNameUpdate}
+        />
+        <ClassMembershipsSection classes={classes} />
+        <ActivitySummarySection
+          role={role}
+          studentStats={studentStats}
+          teacherStats={teacherStats}
+        />
+        <SupportAndLegalSection role={role} />
+      </div>
+    </>
   );
 }
