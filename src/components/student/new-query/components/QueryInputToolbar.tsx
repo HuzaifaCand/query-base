@@ -47,7 +47,24 @@ export function QueryInputToolbar({
         </div>
       ) : (
         /* Standard Toolbar */
-        <div className="flex items-center gap-1 w-full">
+        <div className="flex items-center justify-end gap-1 w-full">
+          {/* Voice Button */}
+          <button
+            type="button"
+            onClick={onStartRecording}
+            disabled={hasVoiceNote}
+            className={cn(
+              "p-1.5 sm:p-2 rounded-lg transition-colors",
+              hasVoiceNote
+                ? "text-muted-foreground/30 cursor-not-allowed"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+            title={
+              hasVoiceNote ? "Voice note already recorded" : "Record voice note"
+            }
+          >
+            <Mic className="w-4 sm:w-5 h-4 sm:h-5" />
+          </button>
           {/* File Input Hidden */}
           <input
             type="file"
@@ -74,24 +91,6 @@ export function QueryInputToolbar({
             }
           >
             <ImageIcon className="w-4 sm:w-5 h-4 sm:h-5" />
-          </button>
-
-          {/* Voice Button */}
-          <button
-            type="button"
-            onClick={onStartRecording}
-            disabled={hasVoiceNote}
-            className={cn(
-              "p-1.5 sm:p-2 rounded-lg transition-colors",
-              hasVoiceNote
-                ? "text-muted-foreground/30 cursor-not-allowed"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-            title={
-              hasVoiceNote ? "Voice note already recorded" : "Record voice note"
-            }
-          >
-            <Mic className="w-4 sm:w-5 h-4 sm:h-5" />
           </button>
         </div>
       )}
