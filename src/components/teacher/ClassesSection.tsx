@@ -5,8 +5,8 @@ import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/lib/databasetypes";
 import ClassCard from "@/components/teacher/ClassCard";
 import AddClassCard from "@/components/teacher/AddClassCard";
-import { Loader2 } from "lucide-react";
 import { useClasses } from "@/contexts/ClassesContext";
+import { LoadingSection } from "@/components/ui/LoadingSection";
 
 interface ClassWithTeacherAndStudentCount extends Tables<"classes"> {
   teacher: string;
@@ -121,14 +121,7 @@ export default function ClassesSection({
   }, [refetchTrigger]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading classes...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSection text="Loading Classes" />;
   }
 
   if (error) {
