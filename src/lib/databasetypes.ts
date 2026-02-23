@@ -144,21 +144,18 @@ export type Database = {
         Row: {
           added_at: string | null;
           class_id: string;
-          display_name: string | null;
           id: string;
           teacher_id: string;
         };
         Insert: {
           added_at?: string | null;
           class_id: string;
-          display_name?: string | null;
           id?: string;
           teacher_id: string;
         };
         Update: {
           added_at?: string | null;
           class_id?: string;
-          display_name?: string | null;
           id?: string;
           teacher_id?: string;
         };
