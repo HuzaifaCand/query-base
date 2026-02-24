@@ -69,7 +69,7 @@ export function QueryView({
   return (
     <div
       className={cn(
-        "group bg-card border border-border/60 rounded-2xl overflow-hidden",
+        "group bg-card border border-border/40 rounded-2xl overflow-hidden",
         "shadow-sm hover:shadow-md",
         "transition-all duration-200",
       )}
@@ -91,13 +91,13 @@ export function QueryView({
           <div className="flex items-center gap-2 flex-wrap shrink-0">
             {/* Privacy / anon badges */}
             {query.is_private && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-muted/60 text-muted-foreground border-border/60">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-muted/60 text-muted-foreground border-border/40">
                 <Lock className="w-2.5 h-2.5" />
                 Private
               </span>
             )}
             {query.is_anonymous && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-muted/60 text-muted-foreground border-border/60">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-muted/60 text-muted-foreground border-border/40">
                 <EyeOff className="w-2.5 h-2.5" />
                 Anonymous
               </span>
