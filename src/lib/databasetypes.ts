@@ -283,9 +283,12 @@ export type Database = {
           class_id: string;
           created_at: string | null;
           description: string | null;
+          featured_at: string | null;
+          featured_note: string | null;
           has_vn: boolean | null;
           id: string;
           is_anonymous: boolean;
+          is_featured: boolean;
           is_private: boolean | null;
           status: string | null;
           student_id: string;
@@ -299,9 +302,12 @@ export type Database = {
           class_id: string;
           created_at?: string | null;
           description?: string | null;
+          featured_at?: string | null;
+          featured_note?: string | null;
           has_vn?: boolean | null;
           id?: string;
           is_anonymous?: boolean;
+          is_featured?: boolean;
           is_private?: boolean | null;
           status?: string | null;
           student_id: string;
@@ -315,9 +321,12 @@ export type Database = {
           class_id?: string;
           created_at?: string | null;
           description?: string | null;
+          featured_at?: string | null;
+          featured_note?: string | null;
           has_vn?: boolean | null;
           id?: string;
           is_anonymous?: boolean;
+          is_featured?: boolean;
           is_private?: boolean | null;
           status?: string | null;
           student_id?: string;
