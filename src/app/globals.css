@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
 @theme {
+  --shade-0: #f8f9fa;
+  --shade-1: #f4f5f6;
+  --shade-2: #e9ecef;
+  --shade-3: #dee2e6;
+  --shade-4: #ced4da;
+  --shade-5: #adb5bd;
+  --shade-6: #868e96;
+  --shade-7: #495057;
+  --shade-8: #343a40;
+  --shade-9: #212529;
   /* --- Standard Semantic Colors --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -122,10 +132,6 @@
 
 @layer base {
   :root {
-    --shade-2: #f4f5f6;
-    --shade-4: #adb5bd;
-    --shade-6: #495057;
-    --shade-7: #343a40;
     /* --- Standard UI Defaults (Light) --- */
     --background: #fdfdfc;
     --foreground: #272727; /* Updated to match your text-default */
