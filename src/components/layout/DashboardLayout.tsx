@@ -36,7 +36,7 @@ export default function DashboardLayout({
           {/* Mobile Header - only visible on mobile */}
           <MobileHeader
             onMenuClick={() => setSidebarOpen(true)}
-            className="lg:hidden"
+            className="pb-4"
           />
 
           <main className="flex-1 p-4 lg:p-8 max-w-7xl w-full">{children}</main>
