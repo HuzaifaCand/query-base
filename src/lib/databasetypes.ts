@@ -276,6 +276,52 @@ export type Database = {
           },
         ];
       };
+      feedbacks: {
+        Row: {
+          author_id: string;
+          author_role: string;
+          created_at: string | null;
+          description: string;
+          id: string;
+        };
+        Insert: {
+          author_id: string;
+          author_role: string;
+          created_at?: string | null;
+          description: string;
+          id?: string;
+        };
+        Update: {
+          author_id?: string;
+          author_role?: string;
+          created_at?: string | null;
+          description?: string;
+          id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "feedbacks_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "feedbacks_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
+          },
+          {
+            foreignKeyName: "feedbacks_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       queries: {
         Row: {
           answered_at: string | null;
