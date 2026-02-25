@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { QueryView } from "../class-page/queries/QueryView";
-import { SearchBar } from "../class-page/queries/AllQueriesList";
+import { QueryCard } from "../class-page/queries/QueryCard";
+import { QueryDetailPanel } from "../class-page/queries/QueryDetailPanel";
+import { SearchBar } from "../class-page/queries/SearchBar";
 import { Loader2, MessageSquarePlus, Search } from "lucide-react";
 import { Database } from "@/lib/databasetypes";
 import { toast } from "sonner";
 import { useQuerySearch } from "@/hooks/useQuerySearch";
+import { useQueryDeepLink } from "@/hooks/useQueryDeepLink";
 
 type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
   author: Database["public"]["Tables"]["users"]["Row"] | null;
@@ -32,7 +34,16 @@ export function YourQueries({ classId }: { classId: string }) {
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "answered">(
     "all",
   );
+  const [selectedQueryId, setSelectedQueryId] = useState<string | null>(null);
+  const {
+    selectedQueryId: deepLinkId,
+    openQuery,
+    closeQuery,
+  } = useQueryDeepLink();
   const queryIdsRef = useRef<Set<string>>(new Set());
+
+  // Once queries load, honour any deep-link ID that arrived in the URL.
+  const pendingDeepLinkRef = useRef<string | null>(deepLinkId);
 
   const {
     searchTerm,
@@ -43,6 +54,8 @@ export function YourQueries({ classId }: { classId: string }) {
     allTags,
     filteredQueries: searchFiltered,
     hasActiveSearch,
+    featuredOnly,
+    toggleFeatured,
   } = useQuerySearch(queries);
 
   // Apply status filter on top of search results
@@ -52,6 +65,21 @@ export function YourQueries({ classId }: { classId: string }) {
     if (statusFilter === "answered") return !!q.answered_at;
     return true;
   });
+
+  // Prefer URL-driven deep-link ID; fall back to locally-set ID.
+  const activeId = deepLinkId ?? selectedQueryId;
+  const selectedQuery = queries.find((q) => q.id === activeId) ?? null;
+
+  // Auto-open deep-linked query once the list has loaded.
+  useEffect(() => {
+    if (!loading && pendingDeepLinkRef.current && queries.length > 0) {
+      const id = pendingDeepLinkRef.current;
+      pendingDeepLinkRef.current = null;
+      if (queries.some((q) => q.id === id)) {
+        setSelectedQueryId(id);
+      }
+    }
+  }, [loading, queries]);
 
   const fetchQueries = useCallback(async () => {
     if (!classId) return;
@@ -153,6 +181,8 @@ export function YourQueries({ classId }: { classId: string }) {
         hasActiveSearch={hasActiveSearch}
         statusFilter={statusFilter}
         onStatusChange={setStatusFilter}
+        featuredOnly={featuredOnly}
+        onToggleFeatured={toggleFeatured}
       />
 
       {/* ── Results ── */}
@@ -187,15 +217,28 @@ export function YourQueries({ classId }: { classId: string }) {
         </div>
       ) : (
         filteredQueries.map((query) => (
-          <QueryView
-            classId={classId}
-            role="student"
+          <QueryCard
             key={query.id}
             query={query}
-            onAnswered={fetchQueries}
+            onClick={() => {
+              setSelectedQueryId(query.id);
+              openQuery(query.id);
+            }}
           />
         ))
       )}
+
+      {/* ── Detail slide-over panel ── */}
+      <QueryDetailPanel
+        query={selectedQuery}
+        classId={classId}
+        role="student"
+        onClose={() => {
+          setSelectedQueryId(null);
+          closeQuery();
+        }}
+        onAnswered={fetchQueries}
+      />
     </div>
   );
 }
