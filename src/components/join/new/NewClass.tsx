@@ -15,10 +15,10 @@ export function NewClass({ role, setShowModal }: NewClassProps) {
   return (
     <div className="p-6">
       <div className="mb-6 space-y-2">
-        <h2 className="text-2xl font-bold">
+        <h2 className="text-xl sm:text-2xl font-bold">
           {role === "teacher" ? "Add New Class" : "Join New Class"}
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm sm:text-base">
           {role === "teacher"
             ? "Enter the details to create a new class"
             : "Enter the class code to join the class"}
