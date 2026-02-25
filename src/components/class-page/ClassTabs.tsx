@@ -33,7 +33,6 @@ export default function ClassTabs({
       { id: "queries", label: "Class Queries", icon: MessageSquare },
       { id: "new-query", label: "New Query", icon: Plus },
       { id: "your-queries", label: "Your Queries", icon: User },
-      { id: "students", label: "Students", icon: Users },
     ];
 
     if (role === "student") {
@@ -46,7 +45,7 @@ export default function ClassTabs({
   const tabs = getTabs();
 
   return (
-    <div className="w-screen sm:w-full relative border-b border-border bg-card">
+    <div className="max-w-screen sm:w-full relative border-b border-border bg-card">
       <div className="absolute -right-1 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent pointer-events-none z-10 sm:hidden" />
 
       {/* 3. INNER SCROLL CONTAINER: This is the part that actually scrolls */}
