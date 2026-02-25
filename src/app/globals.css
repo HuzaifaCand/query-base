@@ -426,3 +426,12 @@
 ::-webkit-scrollbar-thumb:active {
   background-color: var(--scrollbar-thumb-active);
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
