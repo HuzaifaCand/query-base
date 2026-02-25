@@ -44,10 +44,13 @@ export default function ClassTabs({
   const tabs = getTabs();
 
   return (
-    <div className="w-full border-b border-border bg-card">
+    <div className="w-full border-b border-border bg-card overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Desktop Tabs */}
-        <div className="hidden sm:flex items-center gap-1 overflow-x-auto scrollbar-hide">
+        <div
+          className="hidden sm:flex items-center gap-1 overflow-x-auto"
+          style={{ scrollbarWidth: "none" }}
+        >
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -94,8 +97,11 @@ export default function ClassTabs({
           })}
         </div>
 
-        {/* Mobile Tabs */}
-        <div className="sm:hidden flex items-center gap-2 overflow-x-auto scrollbar-hide py-3">
+        {/* Mobile Tabs — horizontal scroll with hidden scrollbar */}
+        <div
+          className="sm:hidden flex items-center gap-2 overflow-x-auto overscroll-x-contain py-3 -mx-4 px-4"
+          style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+        >
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -104,7 +110,7 @@ export default function ClassTabs({
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isActive
                     ? "bg-ring text-white shadow-sm"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted active:scale-95"
