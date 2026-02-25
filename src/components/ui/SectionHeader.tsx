@@ -14,7 +14,8 @@ export default function SectionHeader({
   return (
     <div
       className={cn(
-        "pb-4 lg:border-b border-primary/5 flex text-primary mb-8",
+        "hidden lg:flex",
+        "pb-4 border-b border-primary/5 text-primary mb-8",
         becomesCol === true
           ? "flex-col gap-2 sm:gap-0 sm:flex-row sm:justify-between sm:items-end"
           : "justify-between items-end",
