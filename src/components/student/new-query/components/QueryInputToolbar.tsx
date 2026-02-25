@@ -54,7 +54,7 @@ export function QueryInputToolbar({
             onClick={onStartRecording}
             disabled={hasVoiceNote}
             className={cn(
-              "p-1.5 sm:p-2 rounded-lg transition-colors",
+              "p-2.5 rounded-lg transition-colors",
               hasVoiceNote
                 ? "text-muted-foreground/30 cursor-not-allowed"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -63,7 +63,7 @@ export function QueryInputToolbar({
               hasVoiceNote ? "Voice note already recorded" : "Record voice note"
             }
           >
-            <Mic className="w-4 sm:w-5 h-4 sm:h-5" />
+            <Mic className="w-5 h-5" />
           </button>
           {/* File Input Hidden */}
           <input
@@ -81,7 +81,7 @@ export function QueryInputToolbar({
             onClick={onImageClick}
             disabled={!canAddMoreImages}
             className={cn(
-              "p-1.5 sm:p-2 rounded-lg transition-colors",
+              "p-2.5 rounded-lg transition-colors",
               !canAddMoreImages
                 ? "text-muted-foreground/30 cursor-not-allowed"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -90,7 +90,7 @@ export function QueryInputToolbar({
               !canAddMoreImages ? "Maximum images reached" : "Attach images"
             }
           >
-            <ImageIcon className="w-4 sm:w-5 h-4 sm:h-5" />
+            <ImageIcon className="w-5 h-5" />
           </button>
         </div>
       )}

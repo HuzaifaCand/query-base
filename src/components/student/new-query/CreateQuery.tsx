@@ -139,9 +139,9 @@ export function CreateQuery({ classId }: { classId: string }) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-      {/* Header */}
-      <div className="mb-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-24 sm:pb-4">
+      {/* Header — Toggles + privacy context */}
+      <div className="mb-2">
         <div className="flex items-center justify-end gap-2">
           {!isPrivate && (
             <AnonymousToggle
@@ -154,10 +154,16 @@ export function CreateQuery({ classId }: { classId: string }) {
             onToggle={() => setValue("isPrivate", !isPrivate)}
           />
         </div>
+        {/* Privacy context — always visible including mobile */}
+        <p className="text-[11px] text-muted-foreground/70 text-right mt-1.5 pr-1">
+          {isPrivate
+            ? "Only you and your teacher can see this question"
+            : "All students in the class can see and learn from this"}
+        </p>
       </div>
 
       {/* ── Optional Title ── */}
-      <div className="space-y-1 mb-4">
+      <div className="space-y-1">
         <input
           {...register("title")}
           type="text"
@@ -165,8 +171,8 @@ export function CreateQuery({ classId }: { classId: string }) {
           placeholder={titlePlaceholder}
           maxLength={120}
           className={cn(
-            "w-full bg-transparent text-sm font-medium placeholder:text-muted-foreground/50",
-            "border-0 border-b border-border/50 focus:border-ring/50 pb-1.5",
+            "w-full bg-transparent text-sm sm:text-sm font-medium placeholder:text-muted-foreground/50",
+            "border-0 border-b border-border/50 focus:border-ring/50 pb-2 pt-1",
             "outline-none transition-colors duration-150",
             "text-foreground",
           )}
@@ -203,7 +209,7 @@ export function CreateQuery({ classId }: { classId: string }) {
       )}
 
       {/* ── TAG PICKER ── */}
-      <div className="pt-1 pb-0.5 space-y-2">
+      <div className="pt-1 pb-0.5 space-y-2.5">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
           <Tag className="w-3.5 h-3.5 shrink-0" />
           <span>Select topic tags </span>
@@ -219,7 +225,7 @@ export function CreateQuery({ classId }: { classId: string }) {
             No tags have been set up for this class yet.
           </p>
         ) : (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {availableTags.map((tag) => {
               const isSelected = (selectedTags ?? []).includes(tag.id);
               return (
@@ -228,8 +234,9 @@ export function CreateQuery({ classId }: { classId: string }) {
                   type="button"
                   onClick={() => toggleTag(tag.id)}
                   className={cn(
-                    "px-3 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+                    "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "min-h-[36px]",
                     isSelected
                       ? "bg-ring text-white border-ring shadow-sm"
                       : "bg-transparent text-muted-foreground border-border hover:border-ring/60 hover:text-foreground",
@@ -250,27 +257,16 @@ export function CreateQuery({ classId }: { classId: string }) {
         )}
       </div>
 
-      {/* Footer */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="sm:hidden flex" />
+      {/* ── Footer: desktop inline / mobile sticky ── */}
 
-        <div className="hidden sm:flex">
-          <InputInfo
-            text={
-              isPrivate
-                ? "Only you and your teacher can see this question"
-                : "All students in the class can see and learn from this"
-            }
-          />
-        </div>
-
-        {/* Submit Button */}
-        <div className="sm:mt-2">
+      {/* Desktop footer */}
+      <div className="hidden sm:flex w-full justify-end gap-4">
+        <div className="mt-2">
           <button
             type="submit"
             disabled={isSubmitting || voiceRecorder.isRecording}
             className={cn(
-              "px-6 py-2.5 relative group rounded-lg bg-ring text-xs sm:text-sm font-semibold text-white shadow-md transition-all",
+              "px-6 py-2.5 relative group rounded-lg bg-ring text-sm font-semibold text-white shadow-md transition-all",
               "hover:-translate-y-0.5",
               "flex items-center gap-2",
               "active:translate-y-0 active:scale-[0.98]",
@@ -291,6 +287,32 @@ export function CreateQuery({ classId }: { classId: string }) {
             )}
           </button>
         </div>
+      </div>
+
+      {/* Mobile sticky submit bar */}
+      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-sm px-4 py-3 safe-area-pb">
+        <button
+          type="submit"
+          disabled={isSubmitting || voiceRecorder.isRecording}
+          className={cn(
+            "w-full py-3 rounded-xl bg-ring text-sm font-semibold text-white shadow-lg transition-all",
+            "flex items-center justify-center gap-2",
+            "active:scale-[0.98]",
+            "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none",
+          )}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              <Send className="w-4 h-4" />
+              Submit Query
+            </>
+          )}
+        </button>
       </div>
     </form>
   );

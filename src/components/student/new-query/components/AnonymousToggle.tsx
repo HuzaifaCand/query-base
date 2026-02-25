@@ -26,11 +26,7 @@ export function AnonymousToggle({
       ) : (
         <Eye className="w-3 h-3" />
       )}
-      {isAnonymous ? (
-        <span className="mt-0.5">Anonymous</span>
-      ) : (
-        <span className="mt-0.5">Visible</span>
-      )}
+      {isAnonymous ? <span>Anonymous</span> : <span>Visible</span>}
     </button>
   );
 }

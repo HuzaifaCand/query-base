@@ -55,10 +55,10 @@ export function InputArea({
         {...register("description")}
         onChange={handleTextChange}
         onPaste={handlePaste}
-        rows={5}
+        rows={4}
         placeholder={getPlaceholder()}
         className={cn(
-          "w-full bg-transparent px-4 py-3 text-xs sm:text-sm outline-none resize-none placeholder:text-muted-foreground/50",
+          "w-full bg-transparent px-4 py-3.5 text-sm outline-none resize-none placeholder:text-muted-foreground/50",
           errors.description && !hasVoiceNote && "border-destructive/50",
           queryPanel && "lg:text-base",
         )}
