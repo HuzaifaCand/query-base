@@ -19,6 +19,7 @@ import {
 import type { Tables } from "@/lib/databasetypes";
 import { toast } from "sonner";
 import Link from "next/link";
+import { on } from "events";
 
 // Subject to color and icon mapping
 export const subjectConfig: Record<

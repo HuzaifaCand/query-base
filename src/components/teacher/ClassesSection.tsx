@@ -148,9 +148,7 @@ export default function ClassesSection({
             Get started by creating your first class. You can add students and
             start managing your teaching materials.
           </p>
-          <div className="max-w-xs mx-auto">
-            {role !== "ta" && <AddClassCard role={role} />}
-          </div>
+          {role !== "ta" && <AddClassCard role={role} />}
         </div>
       </div>
     );
