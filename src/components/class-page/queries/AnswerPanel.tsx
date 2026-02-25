@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { answerSchema, AnswerFormData } from "@/lib/validations/query";
+import { supabase } from "@/lib/supabase";
 
 import { cn } from "@/lib/utils";
 import {
@@ -12,6 +13,7 @@ import {
   MessageSquareReply,
   ChevronDown,
   PenLine,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,6 +23,22 @@ import { useSubmit } from "@/hooks/useSubmit";
 import { useQueryInputHandlers } from "@/hooks/useQueryInputHandlers";
 
 import { InputArea } from "@/components/student/new-query/components/InputArea";
+import { AnswerFeatureToggle } from "./AnswerFeatureToggle";
+
+export const featureQuery = async (queryId: string, featuredNote: string) => {
+  try {
+    await supabase
+      .from("queries")
+      .update({
+        is_featured: true,
+        featured_at: new Date().toISOString(),
+        featured_note: featuredNote.trim() || null,
+      })
+      .eq("id", queryId);
+  } catch (err) {
+    console.error("Failed to feature query:", err);
+  }
+};
 
 const MAX_BODY_LENGTH = 2000;
 
@@ -36,6 +54,8 @@ export function AnswerPanel({
   onAnswered,
 }: AnswerPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [featureForClass, setFeatureForClass] = useState(false);
+  const [featuredNote, setFeaturedNote] = useState("");
   const { submitAnswer } = useSubmit();
 
   const {
@@ -90,9 +110,16 @@ export function AnswerPanel({
       voiceRecorder.audioBlob,
     );
     if (success) {
+      // If teacher chose to feature this query, update it
+      if (featureForClass) {
+        await featureQuery(queryId, featuredNote);
+      }
+
       toast.success("Answer submitted successfully!");
       reset();
       voiceRecorder.deleteVoiceNote();
+      setFeatureForClass(false);
+      setFeaturedNote("");
       setIsExpanded(false);
       onAnswered();
     }
@@ -115,6 +142,8 @@ export function AnswerPanel({
     setIsExpanded(false);
     reset();
     voiceRecorder.deleteVoiceNote();
+    setFeatureForClass(false);
+    setFeaturedNote("");
   };
 
   return (
@@ -174,6 +203,14 @@ export function AnswerPanel({
             handleStartRecording={handleStartRecording}
             handleStopRecording={handleStopRecording}
             maxLength={MAX_BODY_LENGTH}
+          />
+
+          {/* ── Feature toggle ── */}
+          <AnswerFeatureToggle
+            featureForClass={featureForClass}
+            setFeatureForClass={setFeatureForClass}
+            featuredNote={featuredNote}
+            setFeaturedNote={setFeaturedNote}
           />
 
           {/* Footer actions */}

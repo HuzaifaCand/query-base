@@ -16,6 +16,7 @@ interface AttachmentListProps {
 }
 
 export function AttachmentList({ attachments }: AttachmentListProps) {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [attachmentUrls, setAttachmentUrls] = useState<Record<string, string>>(
     {},
   );
@@ -27,7 +28,6 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
   const [currentTimes, setCurrentTimes] = useState<Record<string, number>>({});
 
   // Lightbox state
-  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
@@ -137,6 +137,9 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
         return (
           <div
             key={vn.id}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-full border transition-all duration-300 shadow-sm max-w-sm",
               isCurrentlyPlaying
@@ -145,10 +148,11 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
             )}
           >
             <button
-              onClick={() =>
+              onClick={(e) => {
+                e.stopPropagation();
                 attachmentUrls[vn.id] &&
-                toggleAudio(vn.id, attachmentUrls[vn.id])
-              }
+                  toggleAudio(vn.id, attachmentUrls[vn.id]);
+              }}
               disabled={!attachmentUrls[vn.id]}
               className={cn(
                 "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm",
@@ -215,8 +219,9 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
             <div
               key={img.id}
               className="group relative aspect-video rounded-lg overflow-hidden bg-muted border border-border/50 cursor-pointer"
-              onClick={() => {
+              onClick={(e) => {
                 if (attachmentUrls[img.id]) {
+                  e.stopPropagation();
                   openLightbox(img.id);
                 }
               }}
@@ -234,7 +239,7 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
                 </div>
               )}
               {attachmentUrls[img.id] && (
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                <div className="absolute inset-0 bg-black/0 transition-colors" />
               )}
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="p-1.5 bg-black/50 rounded-full text-white backdrop-blur-sm">
@@ -247,15 +252,25 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
       )}
 
       {/* Lightbox for viewing images inside the tab */}
-      <Lightbox
-        open={lightboxOpen}
-        close={() => setLightboxOpen(false)}
-        index={lightboxIndex}
-        slides={slides}
-        carousel={{ finite: true }}
-        controller={{ closeOnBackdropClick: true }}
-        styles={{ container: { backgroundColor: "rgba(0, 0, 0, .8)" } }}
-      />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <Lightbox
+          open={lightboxOpen}
+          close={() => {
+            // A tiny delay ensures the browser's click event resolves on the
+            // lightbox backdrop BEFORE it unmounts, preventing it from
+            // falling through to the QueryCard underneath.
+            setTimeout(() => setLightboxOpen(false), 10);
+          }}
+          index={lightboxIndex}
+          slides={slides}
+          carousel={{ finite: true }}
+          controller={{ closeOnBackdropClick: true }}
+          styles={{ container: { backgroundColor: "rgba(0, 0, 0, .8)" } }}
+        />
+      </div>
     </div>
   );
 }
