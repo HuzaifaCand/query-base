@@ -62,17 +62,24 @@ export async function proxy(request: NextRequest) {
       if (isTeacher)
         return NextResponse.redirect(new URL("/teacher", request.url));
 
-      // Check enrollment only for students
-      const { data: classData } = await supabase
+      // Add limit(1) to prevent maybeSingle() from throwing on multiple records
+      const { data: classData, error: classError } = await supabase
         .from("class_students")
         .select("id")
         .eq("student_id", user.id)
+        .limit(1)
         .maybeSingle();
+
+      if (classError) {
+        console.error("Supabase enrollment check error:", classError);
+      }
 
       if (classData && path === "/join")
         return NextResponse.redirect(new URL("/dashboard", request.url));
+
       if (!classData && path === "/")
         return NextResponse.redirect(new URL("/join", request.url));
+
       if (classData && path === "/")
         return NextResponse.redirect(new URL("/dashboard", request.url));
     }
