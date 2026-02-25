@@ -120,7 +120,7 @@ export function FeaturedQueriesSection() {
       </div>
 
       {/* Cards: horizontal scroll on mobile, grid on desktop */}
-      <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible sm:snap-none sm:pb-0">
+      <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-hide sm:grid sm:grid-cols-2 xl:grid-cols-3 sm:overflow-visible sm:snap-none sm:pb-0">
         {queries.map((query) => (
           <FeaturedQueryCard
             key={query.id}
