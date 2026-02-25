@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import ClassTabs from "./ClassTabs";
 import { TeacherTabs } from "../teacher/TeacherTabs";
 
-type TAB = "queries" | "new-query" | "your-queries" | "students";
+export type TAB = "queries" | "new-query" | "your-queries" | "students";
 
 const TABS: TAB[] = ["queries", "new-query", "your-queries", "students"];
 
@@ -66,14 +66,14 @@ export function ClassPage({ role }: { role: "student" | "teacher" | "ta" }) {
   }, [classId]);
 
   return (
-    <div className="flex flex-col">
+    <div className="space-y-8 pb-4">
       <ClassTabs
         role={role}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
 
-      <div className="py-6 px-4">
+      <div className="px-2 sm:px-4">
         {role === "student" ? (
           <StudentTabs activeTab={activeTab} classId={classId} />
         ) : (

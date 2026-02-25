@@ -2,11 +2,12 @@
 
 import { motion } from "framer-motion";
 import { MessageSquare, Users, Plus, Search, User } from "lucide-react";
+import { TAB } from "./ClassPage";
 
 type Role = "student" | "teacher" | "ta";
 
 export type Tab = {
-  id: string;
+  id: TAB;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 };
@@ -32,6 +33,7 @@ export default function ClassTabs({
       { id: "queries", label: "Class Queries", icon: MessageSquare },
       { id: "new-query", label: "New Query", icon: Plus },
       { id: "your-queries", label: "Your Queries", icon: User },
+      { id: "students", label: "Students", icon: Users },
     ];
 
     if (role === "student") {
@@ -44,12 +46,15 @@ export default function ClassTabs({
   const tabs = getTabs();
 
   return (
-    <div className="w-full border-b border-border bg-card overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Desktop Tabs */}
+    <div className="w-screen sm:w-full relative border-b border-border bg-card">
+      <div className="absolute -right-1 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent pointer-events-none z-10 sm:hidden" />
+
+      {/* 3. INNER SCROLL CONTAINER: This is the part that actually scrolls */}
+      <div className="overflow-x-auto no-scrollbar w-full">
         <div
-          className="hidden sm:flex items-center gap-1 overflow-x-auto"
-          style={{ scrollbarWidth: "none" }}
+          role="tablist"
+          aria-label="Class sections"
+          className="flex items-center gap-1 snap-x snap-mandatory"
         >
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -58,12 +63,17 @@ export default function ClassTabs({
             return (
               <button
                 key={tab.id}
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
                 onClick={() => onTabChange(tab.id)}
-                className="relative px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg"
+                // Added responsive padding, min-height for touch targets, and scroll snap
+                className="relative px-4 py-3 sm:px-6 sm:py-4 min-h-[48px] snap-start flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg select-none"
               >
                 {/* Icon */}
                 <Icon
-                  className={`w-4 h-4 transition-colors ${
+                  aria-hidden="true"
+                  className={`w-4 h-4 transition-colors shrink-0 ${
                     isActive ? "text-primary" : "text-muted-foreground"
                   }`}
                 />
@@ -92,32 +102,6 @@ export default function ClassTabs({
                     }}
                   />
                 )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Mobile Tabs — horizontal scroll with hidden scrollbar */}
-        <div
-          className="sm:hidden flex items-center gap-2 overflow-x-auto overscroll-x-contain py-3 -mx-4 px-4"
-          style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
-        >
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                  isActive
-                    ? "bg-ring text-white shadow-sm"
-                    : "bg-muted/50 text-muted-foreground hover:bg-muted active:scale-95"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
               </button>
             );
           })}
