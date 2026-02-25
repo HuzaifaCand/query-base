@@ -32,6 +32,7 @@ export type SearchableQuery = Database["public"]["Tables"]["queries"]["Row"] & {
 export function useQuerySearch<T extends SearchableQuery>(queries: T[]) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTagIds, setActiveTagIds] = useState<string[]>([]);
+  const [featuredOnly, setFeaturedOnly] = useState(false);
 
   // Derive the full set of tags that exist across all visible queries (for the
   // tag-filter chip row beneath the search bar).
@@ -58,12 +59,18 @@ export function useQuerySearch<T extends SearchableQuery>(queries: T[]) {
   const clearSearch = () => {
     setSearchTerm("");
     setActiveTagIds([]);
+    setFeaturedOnly(false);
   };
+
+  const toggleFeatured = () => setFeaturedOnly((prev) => !prev);
 
   const filteredQueries = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
 
     return queries.filter((q) => {
+      // ── Featured-only filter ─────────────────────────────────────────────────
+      if (featuredOnly && !q.is_featured) return false;
+
       // ── Tag filter (all selected tags must be present) ──────────────────────
       if (activeTagIds.length > 0) {
         const queryTagIds = q.query_tags?.map((qt) => qt.tag_id) ?? [];
@@ -84,9 +91,10 @@ export function useQuerySearch<T extends SearchableQuery>(queries: T[]) {
 
       return inTitle || inDescription || inTags;
     });
-  }, [queries, searchTerm, activeTagIds]);
+  }, [queries, searchTerm, activeTagIds, featuredOnly]);
 
-  const hasActiveSearch = searchTerm.trim() !== "" || activeTagIds.length > 0;
+  const hasActiveSearch =
+    searchTerm.trim() !== "" || activeTagIds.length > 0 || featuredOnly;
 
   return {
     searchTerm,
@@ -97,5 +105,7 @@ export function useQuerySearch<T extends SearchableQuery>(queries: T[]) {
     allTags,
     filteredQueries,
     hasActiveSearch,
+    featuredOnly,
+    toggleFeatured,
   };
 }
