@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { usePendingQueries } from "@/hooks/usePendingQueries";
-import { QuickAnswerModal } from "@/components/teacher/QuickAnswerModal";
+import { QuickAnswerPanel } from "@/components/teacher/QuickAnswerPanel";
 import {
   CheckCircle2,
   Inbox,
@@ -223,7 +223,7 @@ export function PendingQueriesSection() {
 
       {/* ── Modal ── */}
       {modalOpen && queries.length > 0 && (
-        <QuickAnswerModal
+        <QuickAnswerPanel
           queries={queries}
           initialIndex={startIndex}
           onClose={() => setModalOpen(false)}
