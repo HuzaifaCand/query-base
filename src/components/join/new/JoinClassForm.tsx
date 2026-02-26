@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import { ClassCodeInput } from "../ClassCodeInput";
-import { ContinueButton } from "../ContinueButton";
+import { SubmitButton } from "../../ui/SubmitButton";
 import { useClassActions } from "./useClassActions";
 
 export function JoinClassForm({ onSuccess }: { onSuccess: () => void }) {
@@ -15,7 +17,7 @@ export function JoinClassForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <div className="flex flex-col gap-6">
       <ClassCodeInput classCode={classCode} setClassCode={setClassCode} />
-      <ContinueButton
+      <SubmitButton
         submitting={submitting}
         handleSubmit={handleSubmit}
         text="Join Class"

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { ClassCodeInput } from "./ClassCodeInput";
 import { supabase } from "@/lib/supabase";
-import { ContinueButton } from "./ContinueButton";
+import { SubmitButton } from "../ui/SubmitButton";
 import { TextInput } from "./TextInput";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -135,7 +135,7 @@ export default function JoinComponent() {
               transition={{ delay: 0.6 }}
               className="pt-2"
             >
-              <ContinueButton
+              <SubmitButton
                 disabled={!classCode}
                 text="Join Class"
                 loadingText="Joining..."

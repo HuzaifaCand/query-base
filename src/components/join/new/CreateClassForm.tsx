@@ -3,7 +3,7 @@ import { BookOpen, GraduationCap } from "lucide-react";
 import { TextInput } from "../TextInput";
 import { RadioGroup } from "../RadioGroup";
 import { CustomSelect } from "../CustomSelect";
-import { ContinueButton } from "../ContinueButton";
+import { SubmitButton } from "../../ui/SubmitButton";
 import { useClassActions } from "./useClassActions";
 
 // Constants moved outside or imported
@@ -54,12 +54,11 @@ export function CreateClassForm({ onSuccess }: { onSuccess: () => void }) {
           options={SUBJECTS}
         />
       </div>
-      <ContinueButton
+      <SubmitButton
         submitting={submitting}
         handleSubmit={handleSubmit}
         text="Add Class"
         loadingText="Adding..."
-        // Pass necessary props to ContinueButton depending on its implementation
         disabled={!className || !classSubject}
       />
     </div>
