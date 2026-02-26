@@ -54,7 +54,7 @@ function SignOutButton({ onSignOutRequest }: { onSignOutRequest: () => void }) {
       type="button"
       onClick={onSignOutRequest}
       className={cn(
-        "flex items-center gap-3 w-full px-4 py-2 rounded-lg text-xs lg:text-sm font-semibold dark:font-medium",
+        "flex items-center gap-3 w-full px-4 py-2 rounded-lg text-[13px] lg:text-sm font-semibold dark:font-medium",
         "text-muted-foreground hover:bg-muted/80 transition-colors duration-150",
       )}
     >

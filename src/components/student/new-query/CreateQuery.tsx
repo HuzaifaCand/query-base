@@ -139,7 +139,7 @@ export function CreateQuery({ classId }: { classId: string }) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-24 sm:pb-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-24">
       {/* Header — Toggles + privacy context */}
       <div className="mb-2">
         <div className="flex items-center justify-end gap-2">
