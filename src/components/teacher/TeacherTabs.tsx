@@ -1,6 +1,7 @@
 import { AllQueriesList } from "../class-page/queries/AllQueriesList";
 import { Resources } from "../class-page/resources/Resources";
 import { TeacherStudentsList } from "../class-page/TeacherStudentsList";
+import { YourAnswers } from "./YourAnswers";
 
 export function TeacherTabs({
   tab,
@@ -13,8 +14,8 @@ export function TeacherTabs({
     <>
       {tab === "queries" && <AllQueriesList role="teacher" classId={classId} />}
       {tab === "students" && <TeacherStudentsList />}
-      {tab === "answers"}
-      {tab === "resources" && <Resources />}
+      {tab === "answers" && <YourAnswers />}
+      {tab === "resources" && <Resources role="teacher" />}
     </>
   );
 }

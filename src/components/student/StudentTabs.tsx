@@ -20,7 +20,7 @@ export default function StudentTabs({
           Browse feature coming soon...
         </div>
       )}
-      {tab === "resources" && <Resources />}
+      {tab === "resources" && <Resources role="student" />}
     </>
   );
 }
