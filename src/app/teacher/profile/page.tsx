@@ -1,3 +1,4 @@
+import TransitionWrapper from "@/components/layout/TransitionWrapper";
 import ProfileComponent from "@/components/profile/ProfileComponent";
 
 export const metadata = {
@@ -6,5 +7,9 @@ export const metadata = {
 };
 
 export default function TeacherProfilePage() {
-  return <ProfileComponent role="teacher" />;
+  return (
+    <TransitionWrapper>
+      <ProfileComponent role="teacher" />
+    </TransitionWrapper>
+  );
 }

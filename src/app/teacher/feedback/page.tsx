@@ -1,4 +1,5 @@
 import FeedbackComponent from "@/components/feedback/FeedbackComponent";
+import TransitionWrapper from "@/components/layout/TransitionWrapper";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function FeedbackPage() {
-  return <FeedbackComponent role="teacher" />;
+  return (
+    <TransitionWrapper>
+      <FeedbackComponent role="teacher" />
+    </TransitionWrapper>
+  );
 }
