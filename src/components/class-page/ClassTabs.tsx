@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageSquare, Users, Plus, Search, User } from "lucide-react";
+import { MessageSquare, Users, Plus, User, Library, Reply } from "lucide-react";
 import { TAB } from "./ClassPage";
 
 type Role = "student" | "teacher" | "ta";
@@ -26,6 +26,7 @@ export default function ClassTabs({
   const getTabs = (): Tab[] => {
     const TeacherTabs: Tab[] = [
       { id: "queries", label: "Queries", icon: MessageSquare },
+      { id: "answers", label: "Your Answers", icon: Reply },
       { id: "students", label: "Students", icon: Users },
     ];
 
@@ -33,6 +34,7 @@ export default function ClassTabs({
       { id: "queries", label: "Class Queries", icon: MessageSquare },
       { id: "new-query", label: "New Query", icon: Plus },
       { id: "your-queries", label: "Your Queries", icon: User },
+      { id: "resources", label: "Resources", icon: Library },
     ];
 
     if (role === "student") {
