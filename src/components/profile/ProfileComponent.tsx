@@ -104,7 +104,12 @@ export default function ProfileComponent({ role }: ProfileComponentProps) {
   };
 
   if (loading) {
-    return <LoadingSection text="Loading profile" />;
+    return (
+      <div>
+        <SectionHeader title="Profile" />
+        <LoadingSection text="Loading profile" />
+      </div>
+    );
   }
 
   return (
