@@ -1,19 +1,20 @@
 import { AllQueriesList } from "../class-page/queries/AllQueriesList";
+import { Resources } from "../class-page/resources/Resources";
 import { TeacherStudentsList } from "../class-page/TeacherStudentsList";
 
 export function TeacherTabs({
-  activeTab,
+  tab,
   classId,
 }: {
-  activeTab: string;
+  tab: string;
   classId: string;
 }) {
   return (
     <>
-      {activeTab === "queries" && (
-        <AllQueriesList role="teacher" classId={classId} />
-      )}
-      {activeTab === "students" && <TeacherStudentsList />}
+      {tab === "queries" && <AllQueriesList role="teacher" classId={classId} />}
+      {tab === "students" && <TeacherStudentsList />}
+      {tab === "answers"}
+      {tab === "resources" && <Resources />}
     </>
   );
 }
