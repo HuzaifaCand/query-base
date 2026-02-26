@@ -7,9 +7,20 @@ import { supabase } from "@/lib/supabase";
 import ClassTabs from "./ClassTabs";
 import { TeacherTabs } from "../teacher/TeacherTabs";
 
-export type TAB = "queries" | "new-query" | "your-queries" | "students";
+type TeacherTabs = "answers" | "students";
+type StudentTabs = "new-query" | "your-queries";
+type SharedTabs = "queries" | "resources";
 
-const TABS: TAB[] = ["queries", "new-query", "your-queries", "students"];
+export type TAB = SharedTabs | StudentTabs | TeacherTabs;
+
+const TABS: TAB[] = [
+  "queries",
+  "new-query",
+  "your-queries",
+  "students",
+  "resources",
+  "answers",
+];
 
 export function ClassPage({ role }: { role: "student" | "teacher" | "ta" }) {
   const router = useRouter();
@@ -75,9 +86,9 @@ export function ClassPage({ role }: { role: "student" | "teacher" | "ta" }) {
 
       <div className="px-2 sm:px-4">
         {role === "student" ? (
-          <StudentTabs activeTab={activeTab} classId={classId} />
+          <StudentTabs tab={activeTab} classId={classId} />
         ) : (
-          <TeacherTabs activeTab={activeTab} classId={classId} />
+          <TeacherTabs tab={activeTab} classId={classId} />
         )}
       </div>
     </div>
