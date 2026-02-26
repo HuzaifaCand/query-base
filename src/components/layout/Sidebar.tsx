@@ -2,7 +2,14 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, X, Users2, UserCircle, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  X,
+  Users2,
+  UserCircle,
+  LogOut,
+  MessageSquarePlus,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "../theme/ThemeToggle";
@@ -24,11 +31,13 @@ const teacherRoutes: NavItem[] = [
   { label: "Overview", href: "/teacher", icon: LayoutDashboard },
   { label: "Students", href: "/teacher/students", icon: Users2 },
   { label: "Profile", href: "/teacher/profile", icon: UserCircle },
+  { label: "Feedback", href: "/teacher/feedback", icon: MessageSquarePlus },
 ];
 
 const studentRoutes: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Profile", href: "/dashboard/profile", icon: UserCircle },
+  { label: "Feedback", href: "/dashboard/feedback", icon: MessageSquarePlus },
 ];
 
 interface SidebarProps {
@@ -93,7 +102,7 @@ const SidebarContent = ({
               key={href}
               href={href}
               className={cn(
-                "flex items-center justify-between gap-3 px-4 py-2 rounded-lg transition-colors duration-150 text-xs lg:text-sm font-semibold dark:font-medium",
+                "flex items-center justify-between gap-3 px-4 py-2 rounded-lg transition-colors duration-150 text-[13px] lg:text-sm font-semibold dark:font-medium",
                 isActive
                   ? "bg-muted/80 text-primary"
                   : "text-muted-foreground hover:bg-muted/80",
