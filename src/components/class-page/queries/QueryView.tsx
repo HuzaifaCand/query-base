@@ -120,7 +120,7 @@ export function QueryView({
         {/* ── Body ── */}
         <div className="space-y-1.5">
           {query.title && (
-            <h4 className="font-semibold text-base sm:text-[17px] leading-snug text-foreground group-hover:text-primary transition-colors duration-150">
+            <h4 className="font-semibold text-base sm:text-[17px] leading-snug text-foreground transition-colors duration-150">
               {query.title}
             </h4>
           )}

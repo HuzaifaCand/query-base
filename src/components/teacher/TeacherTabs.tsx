@@ -14,7 +14,7 @@ export function TeacherTabs({
     <>
       {tab === "queries" && <AllQueriesList role="teacher" classId={classId} />}
       {tab === "students" && <TeacherStudentsList />}
-      {tab === "answers" && <YourAnswers />}
+      {tab === "answers" && <YourAnswers classId={classId} />}
       {tab === "resources" && <Resources role="teacher" />}
     </>
   );
