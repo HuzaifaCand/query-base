@@ -22,7 +22,7 @@ export default function AddClassCard({
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="group relative h-full overflow-hidden rounded-xl bg-card border-2 border-dashed border-border hover:border-primary/50 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer min-h-[280px]"
+        className="group relative w-full h-full overflow-hidden rounded-xl bg-card border-2 border-dashed border-border hover:border-primary/50 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer min-h-[280px]"
         onClick={() => {
           setShowModal(true);
         }}

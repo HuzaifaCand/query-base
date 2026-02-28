@@ -10,6 +10,7 @@ import { Database } from "@/lib/databasetypes";
 import { toast } from "sonner";
 import { useQuerySearch } from "@/hooks/useQuerySearch";
 import { useQueryDeepLink } from "@/hooks/useQueryDeepLink";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
   author: Database["public"]["Tables"]["users"]["Row"] | null;
@@ -29,6 +30,7 @@ type QueryWithRelations = Database["public"]["Tables"]["queries"]["Row"] & {
 };
 
 export function YourQueries({ classId }: { classId: string }) {
+  const userId = useCurrentUser();
   const [queries, setQueries] = useState<QueryWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "answered">(
@@ -220,6 +222,7 @@ export function YourQueries({ classId }: { classId: string }) {
           <QueryCard
             key={query.id}
             query={query}
+            userId={userId}
             onClick={() => {
               setSelectedQueryId(query.id);
               openQuery(query.id);

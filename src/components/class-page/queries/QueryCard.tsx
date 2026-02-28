@@ -33,9 +33,11 @@ const STATUS_STYLES: Record<string, string> = {
 interface QueryCardProps {
   query: QueryWithRelations;
   onClick: () => void;
+  /** Optional: current user id — when matches query.student_id, shows "You" in the header */
+  userId?: string | null;
 }
 
-export function QueryCard({ query, onClick }: QueryCardProps) {
+export function QueryCard({ query, onClick, userId }: QueryCardProps) {
   const isFeatured = !!query.is_featured;
 
   const tags =
@@ -94,6 +96,9 @@ export function QueryCard({ query, onClick }: QueryCardProps) {
             createdAt={query.created_at}
             role="student"
             size="md"
+            isOwner={
+              !query.is_anonymous && !!userId && query.student_id === userId
+            }
           />
 
           <div className="flex items-center gap-2 flex-wrap shrink-0">

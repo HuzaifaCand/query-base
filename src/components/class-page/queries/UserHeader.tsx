@@ -7,6 +7,8 @@ interface UserHeaderProps {
   role?: "student" | "teacher" | "ta";
   isOfficial?: boolean;
   size?: "sm" | "md";
+  /** When true, displays "You" instead of the user's real name */
+  isOwner?: boolean;
 }
 
 export function UserHeader({
@@ -15,8 +17,10 @@ export function UserHeader({
   role = "student",
   isOfficial = false,
   size = "md",
+  isOwner = false,
 }: UserHeaderProps) {
   const isTeacher = role === "teacher" || role === "ta" || isOfficial;
+  const displayName = isOwner ? "You" : name || "Unknown User";
   const initial = name?.[0]?.toUpperCase() || "?";
 
   return (
@@ -40,7 +44,7 @@ export function UserHeader({
               size === "md" ? "font-semibold" : "font-medium text-sm",
             )}
           >
-            {name || "Unknown User"}
+            {displayName}
           </span>
         </div>
         {createdAt && (

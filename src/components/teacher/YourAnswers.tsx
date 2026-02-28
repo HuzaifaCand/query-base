@@ -11,6 +11,7 @@ import { Database } from "@/lib/databasetypes";
 import { toast } from "sonner";
 import { useQuerySearch } from "@/hooks/useQuerySearch";
 import { useQueryDeepLink } from "@/hooks/useQueryDeepLink";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
   author: Database["public"]["Tables"]["users"]["Row"] | null;
@@ -30,6 +31,7 @@ type QueryWithRelations = Database["public"]["Tables"]["queries"]["Row"] & {
 };
 
 export function YourAnswers({ classId }: { classId: string }) {
+  const userId = useCurrentUser();
   const [queries, setQueries] = useState<QueryWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "answered">(
@@ -256,6 +258,7 @@ export function YourAnswers({ classId }: { classId: string }) {
               {/* Query card — clicking opens the detail panel */}
               <QueryCard
                 query={query}
+                userId={userId}
                 onClick={() => {
                   setSelectedQueryId(query.id);
                   openQuery(query.id);
@@ -266,7 +269,14 @@ export function YourAnswers({ classId }: { classId: string }) {
               {answers.length > 0 && (
                 <div className="ml-4 sm:ml-6 border-l-2 border-ring/20 pl-4 sm:pl-5 pt-3 space-y-3">
                   {answers.map((answer) => (
-                    <AnswerView key={answer.id} answer={answer} />
+                    <AnswerView
+                      key={answer.id}
+                      answer={answer}
+                      userId={userId}
+                      queryId={query.id}
+                      classId={classId}
+                      onUpdated={fetchQueries}
+                    />
                   ))}
                 </div>
               )}

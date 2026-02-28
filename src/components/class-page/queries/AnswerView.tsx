@@ -274,6 +274,7 @@ export function AnswerView({
             role="teacher"
             size="sm"
             isOfficial={!!answer.is_official}
+            isOwner={isOwner}
           />
         </div>
 

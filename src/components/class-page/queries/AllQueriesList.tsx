@@ -11,6 +11,7 @@ import { useQuerySearch } from "@/hooks/useQuerySearch";
 import { useQueryDeepLink } from "@/hooks/useQueryDeepLink";
 import { useRouter } from "next/navigation";
 import { SearchBar } from "./SearchBar";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
   author: Database["public"]["Tables"]["users"]["Row"] | null;
@@ -37,6 +38,7 @@ export function AllQueriesList({
   role: "student" | "teacher" | "ta";
   classId: string;
 }) {
+  const userId = useCurrentUser();
   const [queries, setQueries] = useState<QueryWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "answered">(
@@ -226,6 +228,7 @@ export function AllQueriesList({
           <QueryCard
             key={query.id}
             query={query}
+            userId={userId}
             onClick={() => {
               setSelectedQueryId(query.id);
               openQuery(query.id);

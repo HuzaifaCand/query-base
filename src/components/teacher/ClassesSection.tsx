@@ -110,7 +110,10 @@ export default function ClassesSection({
 
         setClasses(classesWithCounts);
       } catch (err) {
-        console.error("Error fetching classes:", err);
+        console.error(
+          "Error fetching classes:",
+          err instanceof Error ? err.message : "Failed to load classes",
+        );
         setError(err instanceof Error ? err.message : "Failed to load classes");
       } finally {
         setLoading(false);
@@ -148,8 +151,8 @@ export default function ClassesSection({
             Get started by creating your first class. You can add students and
             start managing your teaching materials.
           </p>
-          {role !== "ta" && <AddClassCard role={role} />}
         </div>
+        {role !== "ta" && <AddClassCard role={role} />}
       </div>
     );
   }

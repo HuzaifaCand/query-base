@@ -414,6 +414,11 @@ export function QueryDetailPanel({
                     createdAt={query.created_at}
                     role="student"
                     size="md"
+                    isOwner={
+                      !query.is_anonymous &&
+                      !!userId &&
+                      query.student_id === userId
+                    }
                   />
 
                   <div className="flex items-center gap-2 flex-wrap shrink-0">

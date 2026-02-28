@@ -7,6 +7,7 @@ import { AnswerPanel } from "./AnswerPanel";
 import { AnswerView } from "./AnswerView";
 import { AttachmentList } from "./AttachmentList";
 import { UserHeader } from "./UserHeader";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Lock, EyeOff } from "lucide-react";
 
 type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
@@ -46,6 +47,7 @@ export function QueryView({
   query,
   onAnswered,
 }: QueryViewProps) {
+  const userId = useCurrentUser();
   const isAnswered = !!query.answered_at;
   const officialAnswer =
     query.answers?.find((a) => a.is_official) ?? query.answers?.[0] ?? null;
@@ -86,6 +88,9 @@ export function QueryView({
             createdAt={query.created_at}
             role="student"
             size="md"
+            isOwner={
+              !query.is_anonymous && !!userId && query.student_id === userId
+            }
           />
 
           <div className="flex items-center gap-2 flex-wrap shrink-0">
@@ -162,7 +167,13 @@ export function QueryView({
       {/* ── Official answer ── */}
       {isAnswered && officialAnswer && (
         <div className="px-5 sm:px-6 pb-5 pt-4">
-          <AnswerView answer={officialAnswer} />
+          <AnswerView
+            answer={officialAnswer}
+            userId={userId}
+            queryId={query.id}
+            classId={classId}
+            onUpdated={onAnswered}
+          />
         </div>
       )}
 
