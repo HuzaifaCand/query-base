@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function JoinComponent() {
-  const [displayName, setDisplayName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [classCode, setClassCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -24,10 +24,10 @@ export default function JoinComponent() {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return;
-    if (displayName) {
+    if (fullName) {
       const { error: userError } = await supabase
         .from("users")
-        .update({ full_name: displayName })
+        .update({ full_name: fullName })
         .eq("id", user.id)
         .single();
       if (userError) {
@@ -38,24 +38,23 @@ export default function JoinComponent() {
       }
     }
 
-    const { data: classId } = await supabase
-      .from("classes")
-      .select("id")
-      .eq("class_code", classCode)
-      .single();
-    if (!classId) {
-      console.error("Error fetching class:", classId);
-      toast.error("Something went wrong! Try again");
-      setSubmitting(false);
-      return;
-    }
+    const { error } = await supabase.rpc("join_class_via_code", {
+      p_class_code: classCode,
+    });
 
-    const { error: joinError } = await supabase
-      .from("class_students")
-      .insert({ class_id: classId.id, student_id: user.id });
-    if (joinError) {
-      console.error("Error joining class:", joinError);
-      toast.error("Something went wrong! Try again");
+    if (error) {
+      console.error("Error joining class:", error);
+      // Let them proceed if they are somehow already enrolled
+      if (error.message.includes("Already enrolled")) {
+        setSubmitting(false);
+        router.replace("/dashboard");
+        return;
+      }
+      // Show user-friendly error for bad codes
+      const msg = error.message.includes("Invalid")
+        ? "Invalid class code."
+        : "Something went wrong! Try again.";
+      toast.error(msg);
       setSubmitting(false);
       return;
     }
@@ -112,8 +111,8 @@ export default function JoinComponent() {
             >
               <TextInput
                 title="Display Name"
-                text={displayName}
-                setText={setDisplayName}
+                text={fullName}
+                setText={setFullName}
                 placeholder="Enter your name"
                 Icon={User}
               />

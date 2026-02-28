@@ -57,40 +57,29 @@ export function useClassActions(onSuccess: () => void) {
   const joinClass = async (code: string) => {
     setSubmitting(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      // 1. Call the single RPC
+      const { error } = await supabase.rpc("join_class_via_code", {
+        p_class_code: code,
+      });
 
-      // 1. Find the Class ID based on the Code
-      const { data: classRecord, error: findError } = await supabase
-        .from("classes")
-        .select("id")
-        .eq("class_code", code)
-        .single();
+      // 2. Handle specific RPC errors
+      if (error) {
+        if (error.message.includes("Already enrolled")) {
+          toast.info("You are already in this class!");
+          triggerRefetch();
+          onSuccess();
+          return;
+        }
 
-      if (findError || !classRecord) {
-        throw new Error("Invalid class code. Please check and try again.");
+        if (error.message.includes("Invalid or inactive class code")) {
+          throw new Error("Invalid class code. Please check and try again.");
+        }
+
+        // Fallback for any other database errors
+        throw error;
       }
 
-      // 2. Insert into Join Table (using class_id, NOT code)
-      const { error: joinError } = await supabase
-        .from("class_students")
-        .insert({
-          class_id: classRecord.id,
-          student_id: user.id,
-        });
-
-      // Handle duplicate join gracefully (Postgres code 23505 is unique violation)
-      if (joinError?.code === "23505") {
-        toast.info("You are already in this class!");
-        triggerRefetch();
-        onSuccess();
-        return;
-      }
-
-      if (joinError) throw joinError;
-
+      // 3. Success state
       toast.success("Joined class successfully!");
       triggerRefetch();
       onSuccess();
