@@ -273,8 +273,9 @@ export function QuickAnswerPanel({
       aria-label="Quick Answer"
       className="fixed inset-0 z-50 flex items-end justify-center"
       style={{
-        backgroundColor: isVisible ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0)",
-        transition: "background-color 300ms ease",
+        opacity: isVisible ? 1 : 0,
+        transition: "opacity 300ms ease",
+        backgroundColor: isVisible ? "auto" : "none",
       }}
     >
       {/* ── Modal panel ── */}
@@ -282,8 +283,12 @@ export function QuickAnswerPanel({
         className={cn(
           "w-full h-[88vh] rounded-t-2xl overflow-hidden flex flex-col",
           "sm:max-w-4xl",
-          "bg-card border border-border/60 shadow-2xl",
+          "bg-card",
+          "sm:shadow-2xl sm:border border-border/60",
         )}
+        style={{
+          willChange: "transform",
+        }}
         initial={{ y: "100%" }}
         animate={{ y: isVisible ? "0%" : "100%" }}
         transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.3 }}

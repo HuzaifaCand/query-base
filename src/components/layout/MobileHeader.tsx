@@ -22,7 +22,7 @@ export const MobileHeader = ({ onMenuClick, className }: MobileHeaderProps) => {
           onClick={onMenuClick}
           className="p-2 -mr-2 rounded-md hover:bg-muted text-primary transition-colors"
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="w-5 h-5" />
           <span className="sr-only">Open menu</span>
         </button>
       </div>

@@ -339,6 +339,7 @@ export function QueryDetailPanel({
           />
 
           {/* Slide-over panel */}
+          {/* Slide-over panel */}
           <motion.div
             key="panel"
             ref={panelRef}
@@ -347,8 +348,13 @@ export function QueryDetailPanel({
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             drag="x"
-            dragConstraints={{ right: 0 }}
-            dragElastic={{ right: 0, left: 0.5 }}
+            // FIX: Added left: 0 so the panel snaps back to the edge if the user aborts the swipe
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={{ right: 0, left: 1 }} // Linear drag feeling to the left
+            // FIX: Locks the axis so dragging diagonally doesn't freeze the interaction
+            dragDirectionLock={true}
+            // FIX: Forces GPU acceleration and allows vertical scrolling inside the drag container
+            style={{ willChange: "transform", touchAction: "pan-y" }}
             onDragEnd={(e, { offset, velocity }) => {
               if (offset.x < -100 || velocity.x < -500) {
                 onClose();
@@ -357,11 +363,11 @@ export function QueryDetailPanel({
             className={cn(
               "fixed inset-y-0 left-0 z-50 flex flex-col",
               "w-full sm:w-[560px] md:w-[620px] lg:w-[680px]",
-              "bg-background shadow-2xl",
+              "bg-background",
             )}
           >
             {/* ── Panel Header ── */}
-            <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-border/40 bg-background/80 backdrop-blur-sm shrink-0">
+            <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-border/40 bg-background/80 shrink-0">
               <div className="flex items-center gap-3 min-w-0">
                 {/* Status badge */}
                 {query.status && (
