@@ -4,10 +4,12 @@ import { motion } from "framer-motion";
 import { MessageSquare, Users, Plus, User, Library, Reply } from "lucide-react";
 import { TAB } from "./ClassPage";
 import { Role } from "../profile/types";
+import { useEffect, useRef } from "react";
 
 export type Tab = {
   id: TAB;
   label: string;
+  shortLabel?: string;
   icon: React.ComponentType<{ className?: string }>;
 };
 
@@ -22,6 +24,21 @@ export default function ClassTabs({
   activeTab,
   onTabChange,
 }: ClassTabsProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const activeElement = scrollContainerRef.current?.querySelector(
+      '[aria-selected="true"]',
+    );
+    if (activeElement) {
+      activeElement.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  }, [activeTab]);
+
   const getTabs = (): Tab[] => {
     const TeacherTabs: Tab[] = [
       { id: "queries", label: "Queries", icon: MessageSquare },
@@ -31,9 +48,9 @@ export default function ClassTabs({
     ];
 
     const StudentTabs: Tab[] = [
-      { id: "queries", label: "Class Queries", icon: MessageSquare },
+      { id: "queries", label: "Queries", icon: MessageSquare },
       { id: "new-query", label: "New Query", icon: Plus },
-      { id: "your-queries", label: "Your Queries", icon: User },
+      { id: "your-queries", label: "My Queries", icon: User },
       { id: "resources", label: "Resources", icon: Library },
     ];
 
@@ -47,15 +64,18 @@ export default function ClassTabs({
   const tabs = getTabs();
 
   return (
-    <div className="max-w-screen sm:w-full relative border-b border-border bg-card">
+    <div className="w-full max-w-[94vw] relative border-b border-border bg-card">
       <div className="absolute -right-1 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent pointer-events-none z-10 sm:hidden" />
 
       {/* 3. INNER SCROLL CONTAINER: This is the part that actually scrolls */}
-      <div className="overflow-x-auto no-scrollbar w-full">
+      <div
+        ref={scrollContainerRef}
+        className="overflow-x-auto no-scrollbar w-full"
+      >
         <div
           role="tablist"
           aria-label="Class sections"
-          className="flex items-center gap-1 snap-x snap-mandatory"
+          className="flex items-center gap-1 snap-x snap-mandatory w-max sm:w-full"
         >
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -69,7 +89,7 @@ export default function ClassTabs({
                 aria-controls={`panel-${tab.id}`}
                 onClick={() => onTabChange(tab.id)}
                 // Added responsive padding, min-height for touch targets, and scroll snap
-                className="relative px-4 py-3 sm:px-6 sm:py-4 min-h-[48px] snap-start flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg select-none"
+                className="relative py-3 px-6 sm:py-4 min-h-[48px] snap-start flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg select-none"
               >
                 {/* Icon */}
                 <Icon
