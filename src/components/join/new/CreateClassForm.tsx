@@ -10,6 +10,16 @@ import { useClassActions } from "./useClassActions";
 const SUBJECTS = [
   { label: "Mathematics", value: "mathematics" },
   { label: "Physics", value: "physics" },
+  { label: "Chemistry", value: "chemistry" },
+  { label: "Biology", value: "biology" },
+  { label: "Computer Science", value: "computer-science" },
+  { label: "English", value: "english" },
+  { label: "Economics", value: "economics" },
+  { label: "Business Studies", value: "business-studies" },
+  { label: "Accounting", value: "accounting" },
+  { label: "Psychology", value: "psychology" },
+  { label: "Sociology", value: "sociology" },
+  { label: "Business", value: "business" },
 ];
 
 const CLASS_LEVELS = [

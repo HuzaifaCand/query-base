@@ -3,7 +3,6 @@
 import StudentTabs from "../student/StudentTabs";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
 import ClassTabs from "./ClassTabs";
 import { TeacherTabs } from "../teacher/TeacherTabs";
 import { useQueriesRealtime } from "@/hooks/queries/useQueriesRealtime";

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { createApiClient } from "@/lib/server";
+import { createServiceClient } from "@/lib/server";
 import NewQueryEmail from "../../../emails/NewQueryEmail";
 import { render } from "@react-email/components";
 
@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createApiClient();
+    // Use service-role client — this route runs with no user session cookie
+    // (fire-and-forget fetch from the browser), so the publishable key +
+    // RLS would block every query.
+    const supabase = createServiceClient();
 
     // 1. Fetch the query + the student who submitted it + the class name
     const [queryResult, teachersResult] = await Promise.all([
@@ -81,46 +84,72 @@ export async function POST(request: NextRequest) {
 
     const className =
       (query.classes as { name: string } | null)?.name ?? "Your Class";
-    const studentName =
-      (query.users as { full_name: string | null } | null)?.full_name ??
-      "A student";
+
+    // Use "Anonymous" when the student opted out of identity exposure
+    const studentName = query.is_anonymous
+      ? "A student"
+      : ((query.users as { full_name: string | null } | null)?.full_name ??
+        "A student");
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:4000";
-    const queryUrl = `${appUrl}/teacher/${classId}`;
+    const queryUrl = `${appUrl}/teacher/${classId}?tab=queries&query=${queryId}`;
 
     type TeacherRow = {
       teacher_id: string;
       users: { full_name: string | null; email: string } | null;
     };
 
-    // 3. Send an email to each teacher
-    const emailPromises = (teachers as TeacherRow[]).map(async (teacherRow) => {
-      const teacher = teacherRow.users;
-      if (!teacher?.email) return;
+    // 3. Send an email to each teacher, collecting any send errors
+    const results = await Promise.allSettled(
+      (teachers as TeacherRow[])
+        .filter((row) => !!row.users?.email)
+        .map(async (teacherRow) => {
+          const teacher = teacherRow.users!;
 
-      const html = await render(
-        NewQueryEmail({
-          teacherName: teacher.full_name ?? "Teacher",
-          studentName,
-          className,
-          queryTitle: query.title ?? "Untitled Query",
-          queryDescription: query.description ?? null,
-          queryUrl,
+          const html = await render(
+            NewQueryEmail({
+              teacherName: teacher.full_name ?? "Teacher",
+              studentName,
+              className,
+              queryTitle: query.title ?? "Untitled Query",
+              queryDescription: query.description ?? null,
+              queryUrl,
+            }),
+          );
+
+          const { error: sendError } = await resend.emails.send({
+            from: "QueryBase <querybase@oneilm.org>",
+            to: [teacher.email],
+            subject: `New query in ${className}: ${query.title ?? "Untitled Query"}`,
+            html,
+          });
+
+          if (sendError) {
+            throw new Error(
+              `Resend error for ${teacher.email}: ${sendError.message}`,
+            );
+          }
+
+          return teacher.email;
         }),
+    );
+
+    const failures = results.filter((r) => r.status === "rejected");
+    if (failures.length > 0) {
+      failures.forEach((f) =>
+        console.error(
+          "Email send failure:",
+          (f as PromiseRejectedResult).reason,
+        ),
       );
+    }
 
-      return resend.emails.send({
-        from: "QueryBase <notifications@querybase.app>",
-        to: [teacher.email],
-        subject: `New query in ${className}: ${query.title ?? "Untitled Query"}`,
-        html,
-      });
-    });
-
-    await Promise.all(emailPromises);
-
+    const sent = results.filter((r) => r.status === "fulfilled").length;
     return NextResponse.json(
-      { message: `Emails sent to ${teachers.length} teacher(s)` },
+      {
+        message: `Emails sent to ${sent} teacher(s)`,
+        failures: failures.length,
+      },
       { status: 200 },
     );
   } catch (error) {
