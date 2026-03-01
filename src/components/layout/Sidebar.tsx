@@ -202,19 +202,37 @@ export const MobileSidebar = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 z-50 bg-black/40 lg:hidden"
+              style={{ willChange: "opacity" }} // PERF FIX: GPU acceleration
+              className="fixed inset-0 z-50 bg-black/60 lg:hidden"
             />
+
             {/* Drawer */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-              className="fixed inset-y-0 right-0 z-50 w-3/4 max-w-sm bg-background lg:hidden shadow-xl"
+              // PERF FIX: Force GPU and allow vertical scrolling inside
+              style={{ willChange: "transform", touchAction: "pan-y" }}
+              // DRAG FIX: Enable swipe-to-close
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              // Elasticity: 0 on the left (wall), 1 on the right (free pull)
+              dragElastic={{ left: 0, right: 1 }}
+              dragDirectionLock={true}
+              onDragEnd={(e, { offset, velocity }) => {
+                // If swiped right by 100px or flicked right fast, close it
+                if (offset.x > 100 || velocity.x > 500) {
+                  onClose();
+                }
+              }}
+              // PERF FIX: Swapped shadow-xl for border-l on mobile
+              className="fixed inset-y-0 right-0 z-50 w-3/4 max-w-sm bg-background lg:hidden border-l border-border/50 sm:shadow-2xl"
             >
               <div className="flex flex-col h-full relative">
                 {/* Mobile header: logo + theme toggle + close */}
-                <div className="flex items-center justify-between h-24 px-6 border-b border-primary/5">
+                {/* Notice I added touch-none to the header so dragging it feels solid */}
+                <div className="flex items-center justify-between h-24 px-6 border-b border-primary/5 touch-none shrink-0">
                   <span
                     className={`${logoFont.className} text-xl font-semibold text-primary tracking-tight`}
                   >
@@ -224,14 +242,14 @@ export const MobileSidebar = ({
                     <ThemeToggle />
                     <button
                       onClick={onClose}
-                      className="rounded-md hover:bg-muted text-muted-foreground"
+                      className="rounded-md hover:bg-muted text-muted-foreground p-2 -mr-2"
                     >
                       <X className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
 
-                <div className="pt-4 sm:pt-0 h-full">
+                <div className="pt-4 sm:pt-0 flex-1 overflow-y-auto overscroll-contain">
                   <SidebarContent
                     role={role}
                     onSignOutRequest={() => setConfirmOpen(true)}

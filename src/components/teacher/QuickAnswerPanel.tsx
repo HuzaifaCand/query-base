@@ -284,7 +284,8 @@ export function QuickAnswerPanel({
           "w-full h-[88vh] rounded-t-2xl overflow-hidden flex flex-col",
           "sm:max-w-4xl",
           "bg-card",
-          "sm:shadow-2xl sm:border border-border/60",
+          "sm:shadow-2xl",
+          "border border-border/60",
         )}
         style={{
           willChange: "transform",
