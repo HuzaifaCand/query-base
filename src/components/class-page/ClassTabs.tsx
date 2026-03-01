@@ -64,7 +64,7 @@ export default function ClassTabs({
   const tabs = getTabs();
 
   return (
-    <div className="w-full max-w-[94vw] relative border-b border-border bg-card">
+    <div className="w-full max-w-[calc(100vw-2rem)] relative border-b border-border bg-card">
       <div className="absolute -right-1 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent pointer-events-none z-10 sm:hidden" />
 
       {/* 3. INNER SCROLL CONTAINER: This is the part that actually scrolls */}
@@ -89,7 +89,7 @@ export default function ClassTabs({
                 aria-controls={`panel-${tab.id}`}
                 onClick={() => onTabChange(tab.id)}
                 // Added responsive padding, min-height for touch targets, and scroll snap
-                className="relative py-3 px-6 sm:py-4 min-h-[48px] snap-start flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg select-none"
+                className="relative px-4 py-3 sm:px-6 sm:py-4 min-h-[48px] snap-start flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg select-none"
               >
                 {/* Icon */}
                 <Icon
