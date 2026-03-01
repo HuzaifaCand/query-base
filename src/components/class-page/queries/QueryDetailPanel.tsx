@@ -346,6 +346,14 @@ export function QueryDetailPanel({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            drag="x"
+            dragConstraints={{ right: 0 }}
+            dragElastic={{ right: 0, left: 0.5 }}
+            onDragEnd={(e, { offset, velocity }) => {
+              if (offset.x < -100 || velocity.x < -500) {
+                onClose();
+              }
+            }}
             className={cn(
               "fixed inset-y-0 left-0 z-50 flex flex-col",
               "w-full sm:w-[560px] md:w-[620px] lg:w-[680px]",

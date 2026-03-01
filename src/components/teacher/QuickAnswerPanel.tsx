@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { motion, useAnimation, useDragControls } from "framer-motion";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { answerSchema, AnswerFormData } from "@/lib/validations/query";
@@ -261,6 +262,8 @@ export function QuickAnswerPanel({
         ? "opacity-0 translate-x-6"
         : "opacity-100 translate-x-0";
 
+  const dragControls = useDragControls();
+
   const modalContent = (
     <div
       ref={backdropRef}
@@ -275,24 +278,39 @@ export function QuickAnswerPanel({
       }}
     >
       {/* ── Modal panel ── */}
-      <div
+      <motion.div
         className={cn(
           "w-full h-[88vh] rounded-t-2xl overflow-hidden flex flex-col",
           "sm:max-w-4xl",
           "bg-card border border-border/60 shadow-2xl",
         )}
-        style={{
-          transform: isVisible ? "translateY(0)" : "translateY(100%)",
-          transition: "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+        initial={{ y: "100%" }}
+        animate={{ y: isVisible ? "0%" : "100%" }}
+        transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.3 }}
+        drag="y"
+        dragControls={dragControls}
+        dragListener={false}
+        dragConstraints={{ top: 0 }}
+        dragElastic={{ top: 0, bottom: 0.5 }}
+        onDragEnd={(e, { offset, velocity }) => {
+          if (offset.y > 100 || velocity.y > 500) {
+            triggerClose();
+          }
         }}
       >
-        {/* Pull handle */}
-        <div className="flex justify-center pt-3 pb-1 shrink-0">
+        {/* Pull handle - Draggable Area */}
+        <div
+          className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing touch-none"
+          onPointerDown={(e) => dragControls.start(e)}
+        >
           <div className="w-10 h-1 rounded-full bg-border/60" />
         </div>
 
         {/* ── Header ── */}
-        <div className="flex items-start justify-between gap-3 px-5 pt-3 pb-4 border-b border-border/50 shrink-0">
+        <div
+          className="flex items-start justify-between gap-3 px-5 pt-3 pb-4 border-b border-border/50 shrink-0 cursor-grab active:cursor-grabbing touch-none"
+          onPointerDown={(e) => dragControls.start(e)}
+        >
           <div className="flex-1 min-w-0">
             {/* Class badge */}
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-2 rounded-full bg-ring/10 border border-ring/20">
@@ -506,7 +524,7 @@ export function QuickAnswerPanel({
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 
