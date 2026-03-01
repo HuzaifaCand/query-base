@@ -487,15 +487,6 @@ export function QuickAnswerPanel({
             {/* Actions */}
             <div className="flex items-center gap-2">
               <button
-                type="button"
-                onClick={() => navigate("next")}
-                disabled={currentIndex === queries.length - 1 || isSliding}
-                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-3 py-2"
-              >
-                Skip →
-              </button>
-
-              <button
                 type="submit"
                 form="quick-answer-form"
                 disabled={
