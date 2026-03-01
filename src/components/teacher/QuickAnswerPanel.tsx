@@ -271,7 +271,7 @@ export function QuickAnswerPanel({
       role="dialog"
       aria-modal="true"
       aria-label="Quick Answer"
-      className="fixed inset-0 z-50 flex items-end justify-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60"
       style={{
         opacity: isVisible ? 1 : 0,
         transition: "opacity 300ms ease",
