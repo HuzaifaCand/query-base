@@ -55,31 +55,6 @@ export function ClassPage({ role }: { role: "student" | "teacher" | "ta" }) {
   // Single realtime channel for all query/answer tabs (CACHING.md §4)
   useQueriesRealtime(classId);
 
-  const [className, setClassName] = useState("");
-
-  useEffect(() => {
-    const fetchClass = async () => {
-      if (!classId) return;
-
-      const { data, error } = await supabase
-        .from("classes")
-        .select("*")
-        .eq("id", classId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching class:", error.message);
-        return;
-      }
-
-      if (data) {
-        setClassName(data.name);
-      }
-    };
-
-    fetchClass();
-  }, [classId]);
-
   return (
     <div className="space-y-8 pb-4">
       <ClassTabs
