@@ -30,7 +30,7 @@ export function PendingQueriesSection() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-3 px-5 py-4 justify-center h-50 rounded-2xl border border-border/50 bg-muted/30 mb-2">
+      <div className="flex items-center gap-3 px-5 py-4 justify-center h-50 rounded-2xl border border-border/50 bg-muted/30">
         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
         <span className="text-sm text-muted-foreground">Loading inbox…</span>
       </div>
@@ -45,7 +45,6 @@ export function PendingQueriesSection() {
           "flex flex-col items-center justify-center text-center",
           "px-6 py-8 rounded-2xl border border-dashed border-border/50",
           "bg-gradient-to-br from-green-500/5 via-emerald-500/5 to-teal-500/5",
-          "mb-2",
         )}
       >
         <div className="relative mb-3">
@@ -85,7 +84,7 @@ export function PendingQueriesSection() {
     <>
       <div
         className={cn(
-          "rounded-2xl border border-border/60 overflow-hidden mb-2",
+          "rounded-2xl border border-border/60 overflow-hidden",
           "bg-card shadow-sm",
         )}
       >

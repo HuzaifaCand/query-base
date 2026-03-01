@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/lib/databasetypes";
 import { cn } from "@/lib/utils";
@@ -88,7 +88,7 @@ export default function SidebarClasses({ role }: SidebarClassesProps) {
       {/* Classes List */}
       {loading && (
         <div className="flex h-24 items-center justify-center">
-          <Loader className="w-3 h-3 rounded-full text-ring animate-spin" />
+          <Loader2 className="w-3 h-3 rounded-full text-ring animate-spin" />
         </div>
       )}
       {!loading && (

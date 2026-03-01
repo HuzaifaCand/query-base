@@ -6,11 +6,10 @@ import TransitionWrapper from "@/components/layout/TransitionWrapper";
 export default function TeacherPage() {
   return (
     <TransitionWrapper>
-      <div className="flex flex-col gap-6">
-        <div>
-          <SectionHeader title="Overview" />
-          <PendingQueriesSection />
-        </div>
+      <SectionHeader title="Overview" />
+
+      <div className="space-y-8">
+        <PendingQueriesSection />
         <ClassesSection role="teacher" />
       </div>
     </TransitionWrapper>

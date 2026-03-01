@@ -83,7 +83,7 @@ export function FeaturedQueriesSection() {
   // Still loading — show a slim loader
   if (loading) {
     return (
-      <div className="flex items-center gap-3 px-5 py-4 justify-center h-50 rounded-2xl border border-border/50 bg-muted/30 mb-2">
+      <div className="flex items-center gap-3 px-5 py-4 justify-center h-50 rounded-2xl border border-border/50 bg-muted/30">
         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
         <span className="text-sm text-muted-foreground">
           Loading featured queries...
@@ -93,7 +93,7 @@ export function FeaturedQueriesSection() {
   }
 
   return (
-    <section className="pb-12">
+    <section>
       {/* Section header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">

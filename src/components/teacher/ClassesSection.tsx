@@ -124,12 +124,48 @@ export default function ClassesSection({
   }, [refetchTrigger]);
 
   if (loading) {
-    return <LoadingSection text="Loading Classes" />;
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className="group relative h-[280px] overflow-hidden rounded-xl bg-card border border-border shadow-md flex flex-col"
+          >
+            {/* Gradient Header Skeleton */}
+            <div className="h-32 bg-muted/30 animate-pulse relative overflow-hidden" />
+
+            {/* Content Skeleton */}
+            <div className="p-5 flex-1 flex flex-col">
+              <div className="space-y-2 mb-4">
+                <div className="h-6 w-3/4 bg-muted/40 animate-pulse rounded" />
+                <div className="h-4 w-1/2 bg-muted/40 animate-pulse rounded" />
+              </div>
+
+              <div className="flex gap-2 mb-4">
+                <div className="h-6 w-16 bg-muted/40 animate-pulse rounded-md" />
+                <div className="h-6 w-20 bg-muted/40 animate-pulse rounded-md" />
+              </div>
+
+              <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-muted/40 animate-pulse" />
+                  <div className="h-4 w-20 bg-muted/40 animate-pulse rounded" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-12 bg-muted/40 animate-pulse rounded" />
+                  <div className="h-5 w-16 bg-muted/40 animate-pulse rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center">
         <div className="max-w-md p-6 bg-destructive/10 border border-destructive/20 rounded-lg">
           <h3 className="text-lg font-semibold text-destructive mb-2">
             Error Loading Classes
@@ -158,7 +194,7 @@ export default function ClassesSection({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {classes.map((classData) => (
         <ClassCard
           key={classData.id}
