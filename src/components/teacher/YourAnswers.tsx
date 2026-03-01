@@ -1,39 +1,34 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useState, useRef } from "react";
 import { QueryCard } from "../class-page/queries/QueryCard";
 import { QueryDetailPanel } from "../class-page/queries/QueryDetailPanel";
 import { AnswerView } from "../class-page/queries/AnswerView";
 import { SearchBar } from "../class-page/queries/SearchBar";
 import { Loader2, MessageSquareReply, Search } from "lucide-react";
-import { Database } from "@/lib/databasetypes";
-import { toast } from "sonner";
 import { useQuerySearch } from "@/hooks/useQuerySearch";
 import { useQueryDeepLink } from "@/hooks/useQueryDeepLink";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useYourAnswers } from "@/hooks/queries/useYourAnswers";
+import { useInvalidateQueries } from "@/hooks/queries/useInvalidateQueries";
+import type { QueryWithRelations } from "@/components/class-page/queries/AllQueriesList";
+import type { Database } from "@/lib/databasetypes";
 
 type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
   author: Database["public"]["Tables"]["users"]["Row"] | null;
   attachments: Database["public"]["Tables"]["attachments"]["Row"][];
 };
 
-type QueryTag = {
-  tag_id: string;
-  tags: Database["public"]["Tables"]["tags"]["Row"] | null;
-};
-
-type QueryWithRelations = Database["public"]["Tables"]["queries"]["Row"] & {
-  student: Database["public"]["Tables"]["users"]["Row"] | null;
-  attachments: Database["public"]["Tables"]["attachments"]["Row"][];
-  answers: Answer[];
-  query_tags: QueryTag[];
-};
-
 export function YourAnswers({ classId }: { classId: string }) {
   const userId = useCurrentUser();
-  const [queries, setQueries] = useState<QueryWithRelations[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // ── TanStack Query (replaces useState + fetchQueries + useEffect channel) ──
+  const { data: queries = [], isLoading: loading } = useYourAnswers(
+    classId,
+    userId,
+  );
+  const invalidate = useInvalidateQueries();
+
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "answered">(
     "all",
   );
@@ -43,7 +38,6 @@ export function YourAnswers({ classId }: { classId: string }) {
     openQuery,
     closeQuery,
   } = useQueryDeepLink();
-  const queryIdsRef = useRef<Set<string>>(new Set());
 
   // Once queries load, honour any deep-link ID that arrived in the URL.
   const pendingDeepLinkRef = useRef<string | null>(deepLinkId);
@@ -84,116 +78,8 @@ export function YourAnswers({ classId }: { classId: string }) {
     }
   }, [loading, queries]);
 
-  const fetchQueries = useCallback(async () => {
-    if (!classId) return;
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Step 1: Find all query IDs where the current user has authored an answer
-      // in this class. We join through answers → queries to filter by class_id.
-      const { data: answeredQueryRows, error: answerError } = await supabase
-        .from("answers")
-        .select("query_id, queries!inner(class_id)")
-        .eq("author_id", user.id)
-        .eq("queries.class_id", classId);
-
-      if (answerError) throw answerError;
-
-      // Extract unique query IDs
-      const answeredQueryIds = [
-        ...new Set((answeredQueryRows ?? []).map((r) => r.query_id)),
-      ];
-
-      if (answeredQueryIds.length === 0) {
-        setQueries([]);
-        setLoading(false);
-        return;
-      }
-
-      // Step 2: Fetch the full query data with all relations
-      const { data, error } = await supabase
-        .from("queries")
-        .select(
-          `
-          *,
-          student:users!student_id(*),
-          attachments(*),
-          answers(
-            *,
-            author:users!author_id(*),
-            attachments(*)
-          ),
-          query_tags(
-            tag_id,
-            tags(*)
-          )
-        `,
-        )
-        .in("id", answeredQueryIds)
-        .order("created_at", { ascending: false })
-        .order("created_at", { referencedTable: "answers", ascending: true });
-
-      if (error) throw error;
-
-      if (data) {
-        setQueries(data as QueryWithRelations[]);
-        queryIdsRef.current = new Set(data.map((q) => q.id));
-      }
-    } catch (error) {
-      console.error("Error fetching your answered queries:", error);
-      toast.error("Failed to load your answers");
-    } finally {
-      setLoading(false);
-    }
-  }, [classId]);
-
-  useEffect(() => {
-    if (!classId) return;
-
-    fetchQueries();
-
-    const channel = supabase
-      .channel(`your-answers-changes-${classId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "queries",
-          filter: `class_id=eq.${classId}`,
-        },
-        () => fetchQueries(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "answers" },
-        (payload) => {
-          const newRecord = payload.new as { query_id?: string };
-          const oldRecord = payload.old as { query_id?: string };
-          const queryId = newRecord?.query_id || oldRecord?.query_id;
-          if (queryId && queryIdsRef.current.has(queryId)) fetchQueries();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [classId, fetchQueries]);
-
-  /** Get only the answers authored by the current user for a given query */
-  const getMyAnswers = useCallback((query: QueryWithRelations): Answer[] => {
-    // We don't have the user.id cached in state, so we check the author_id
-    // against the answers that exist. Since we fetched queries specifically
-    // where the current user has answers, we can identify "my" answers by
-    // checking if the answer's author matches any answer author from the
-    // initial fetch. Instead, we show ALL answers on the query since they're
-    // already fetched and the teacher should see the full context.
-    return query.answers;
-  }, []);
+  /** All answers on a query — teacher should see the full context. */
+  const getMyAnswers = (query: QueryWithRelations): Answer[] => query.answers;
 
   if (loading) {
     return (
@@ -275,7 +161,7 @@ export function YourAnswers({ classId }: { classId: string }) {
                       userId={userId}
                       queryId={query.id}
                       classId={classId}
-                      onUpdated={fetchQueries}
+                      onUpdated={invalidate}
                     />
                   ))}
                 </div>
@@ -294,7 +180,7 @@ export function YourAnswers({ classId }: { classId: string }) {
           setSelectedQueryId(null);
           closeQuery();
         }}
-        onAnswered={fetchQueries}
+        onAnswered={invalidate}
       />
     </div>
   );

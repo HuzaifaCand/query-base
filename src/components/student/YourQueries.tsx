@@ -1,38 +1,26 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useState, useRef } from "react";
 import { QueryCard } from "../class-page/queries/QueryCard";
 import { QueryDetailPanel } from "../class-page/queries/QueryDetailPanel";
 import { SearchBar } from "../class-page/queries/SearchBar";
 import { Loader2, MessageSquarePlus, Search } from "lucide-react";
-import { Database } from "@/lib/databasetypes";
-import { toast } from "sonner";
 import { useQuerySearch } from "@/hooks/useQuerySearch";
 import { useQueryDeepLink } from "@/hooks/useQueryDeepLink";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-
-type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
-  author: Database["public"]["Tables"]["users"]["Row"] | null;
-  attachments: Database["public"]["Tables"]["attachments"]["Row"][];
-};
-
-type QueryTag = {
-  tag_id: string;
-  tags: Database["public"]["Tables"]["tags"]["Row"] | null;
-};
-
-type QueryWithRelations = Database["public"]["Tables"]["queries"]["Row"] & {
-  student: Database["public"]["Tables"]["users"]["Row"] | null;
-  attachments: Database["public"]["Tables"]["attachments"]["Row"][];
-  answers: Answer[];
-  query_tags: QueryTag[];
-};
+import { useYourQueries } from "@/hooks/queries/useYourQueries";
+import { useInvalidateQueries } from "@/hooks/queries/useInvalidateQueries";
 
 export function YourQueries({ classId }: { classId: string }) {
   const userId = useCurrentUser();
-  const [queries, setQueries] = useState<QueryWithRelations[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // ── TanStack Query (replaces useState + fetchQueries + useEffect channel) ──
+  const { data: queries = [], isLoading: loading } = useYourQueries(
+    classId,
+    userId,
+  );
+  const invalidate = useInvalidateQueries();
+
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "answered">(
     "all",
   );
@@ -42,7 +30,6 @@ export function YourQueries({ classId }: { classId: string }) {
     openQuery,
     closeQuery,
   } = useQueryDeepLink();
-  const queryIdsRef = useRef<Set<string>>(new Set());
 
   // Once queries load, honour any deep-link ID that arrived in the URL.
   const pendingDeepLinkRef = useRef<string | null>(deepLinkId);
@@ -82,85 +69,6 @@ export function YourQueries({ classId }: { classId: string }) {
       }
     }
   }, [loading, queries]);
-
-  const fetchQueries = useCallback(async () => {
-    if (!classId) return;
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("queries")
-        .select(
-          `
-          *,
-          student:users!student_id(*),
-          attachments(*),
-          answers(
-            *,
-            author:users!author_id(*),
-            attachments(*)
-          ),
-          query_tags(
-            tag_id,
-            tags(*)
-          )
-        `,
-        )
-        .eq("class_id", classId)
-        .eq("student_id", user.id)
-        .order("created_at", { ascending: false })
-        .order("created_at", { referencedTable: "answers", ascending: true });
-
-      if (error) throw error;
-
-      if (data) {
-        setQueries(data as QueryWithRelations[]);
-        queryIdsRef.current = new Set(data.map((q) => q.id));
-      }
-    } catch (error) {
-      console.error("Error fetching your queries:", error);
-      toast.error("Failed to load your queries");
-    } finally {
-      setLoading(false);
-    }
-  }, [classId]);
-
-  useEffect(() => {
-    if (!classId) return;
-
-    fetchQueries();
-
-    const channel = supabase
-      .channel(`your-queries-changes-${classId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "queries",
-          filter: `class_id=eq.${classId}`,
-        },
-        () => fetchQueries(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "answers" },
-        (payload) => {
-          const newRecord = payload.new as { query_id?: string };
-          const oldRecord = payload.old as { query_id?: string };
-          const queryId = newRecord?.query_id || oldRecord?.query_id;
-          if (queryId && queryIdsRef.current.has(queryId)) fetchQueries();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [classId, fetchQueries]);
 
   if (loading) {
     return (
@@ -240,7 +148,7 @@ export function YourQueries({ classId }: { classId: string }) {
           setSelectedQueryId(null);
           closeQuery();
         }}
-        onAnswered={fetchQueries}
+        onAnswered={invalidate}
       />
     </div>
   );

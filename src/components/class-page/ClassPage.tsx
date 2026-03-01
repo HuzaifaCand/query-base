@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import ClassTabs from "./ClassTabs";
 import { TeacherTabs } from "../teacher/TeacherTabs";
+import { useQueriesRealtime } from "@/hooks/queries/useQueriesRealtime";
 
 type TeacherTabs = "answers" | "students";
 type StudentTabs = "new-query" | "your-queries";
@@ -50,6 +51,9 @@ export function ClassPage({ role }: { role: "student" | "teacher" | "ta" }) {
   );
 
   const classId = params.classId as string;
+
+  // Single realtime channel for all query/answer tabs (CACHING.md §4)
+  useQueriesRealtime(classId);
 
   const [className, setClassName] = useState("");
 

@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useState, useRef } from "react";
 import { QueryCard } from "./QueryCard";
 import { QueryDetailPanel } from "./QueryDetailPanel";
 import { Database } from "@/lib/databasetypes";
-import { toast } from "sonner";
 import { Loader2, MessageSquarePlus, Search } from "lucide-react";
 import { useQuerySearch } from "@/hooks/useQuerySearch";
 import { useQueryDeepLink } from "@/hooks/useQueryDeepLink";
 import { useRouter } from "next/navigation";
 import { SearchBar } from "./SearchBar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useAllQueries } from "@/hooks/queries/useAllQueries";
+import { useInvalidateQueries } from "@/hooks/queries/useInvalidateQueries";
 
 type Answer = Database["public"]["Tables"]["answers"]["Row"] & {
   author: Database["public"]["Tables"]["users"]["Row"] | null;
@@ -39,8 +39,11 @@ export function AllQueriesList({
   classId: string;
 }) {
   const userId = useCurrentUser();
-  const [queries, setQueries] = useState<QueryWithRelations[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // ── TanStack Query (replaces useState + fetchQueries + useEffect channel) ──
+  const { data: queries = [], isLoading: loading } = useAllQueries(classId);
+  const invalidate = useInvalidateQueries();
+
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "answered">(
     "all",
   );
@@ -50,10 +53,8 @@ export function AllQueriesList({
     openQuery,
     closeQuery,
   } = useQueryDeepLink();
-  const queryIdsRef = useRef<Set<string>>(new Set());
 
   // Once queries load, honour any deep-link ID that arrived in the URL.
-  // We store it separately so we only auto-open once per URL param visit.
   const pendingDeepLinkRef = useRef<string | null>(deepLinkId);
 
   const {
@@ -78,7 +79,6 @@ export function AllQueriesList({
   });
 
   // Find the full query object for the detail panel.
-  // Prefer the URL-driven deep-link ID; fall back to locally-set ID.
   const activeId = deepLinkId ?? selectedQueryId;
   const selectedQuery = queries.find((q) => q.id === activeId) ?? null;
 
@@ -92,79 +92,6 @@ export function AllQueriesList({
       }
     }
   }, [loading, queries]);
-
-  const fetchQueries = useCallback(async () => {
-    if (!classId) return;
-    try {
-      const { data, error } = await supabase
-        .from("queries")
-        .select(
-          `
-          *,
-          student:users!student_id(*),
-          attachments(*),
-          answers(
-            *,
-            author:users!author_id(*),
-            attachments(*)
-          ),
-          query_tags(
-            tag_id,
-            tags(*)
-          )
-        `,
-        )
-        .eq("class_id", classId)
-        .order("created_at", { ascending: false })
-        .order("created_at", { referencedTable: "answers", ascending: true });
-
-      if (error) throw error;
-
-      if (data) {
-        setQueries(data as QueryWithRelations[]);
-        queryIdsRef.current = new Set(data.map((q) => q.id));
-      }
-    } catch (error) {
-      console.error("Error fetching queries:", error);
-      toast.error("Failed to load queries");
-    } finally {
-      setLoading(false);
-    }
-  }, [classId]);
-
-  useEffect(() => {
-    if (!classId) return;
-
-    fetchQueries();
-
-    const channel = supabase
-      .channel(`queries-changes-${classId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "queries",
-          filter: `class_id=eq.${classId}`,
-        },
-        () => fetchQueries(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "answers" },
-        (payload) => {
-          const newRecord = payload.new as { query_id?: string };
-          const oldRecord = payload.old as { query_id?: string };
-          const queryId = newRecord?.query_id || oldRecord?.query_id;
-          if (queryId && queryIdsRef.current.has(queryId)) fetchQueries();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [classId, fetchQueries]);
 
   const router = useRouter();
 
@@ -246,7 +173,7 @@ export function AllQueriesList({
           setSelectedQueryId(null);
           closeQuery();
         }}
-        onAnswered={fetchQueries}
+        onAnswered={invalidate}
       />
     </div>
   );
