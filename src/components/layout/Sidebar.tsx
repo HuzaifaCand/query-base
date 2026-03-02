@@ -9,6 +9,7 @@ import {
   UserCircle,
   LogOut,
   MessageSquarePlus,
+  BarChart3,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ const teacherRoutes: NavItem[] = [
   { label: "Students", href: "/teacher/students", icon: Users2 },
   { label: "Profile", href: "/teacher/profile", icon: UserCircle },
   { label: "Feedback", href: "/teacher/feedback", icon: MessageSquarePlus },
+  { label: "Analytics", href: "/teacher/analytics", icon: BarChart3 },
 ];
 
 const studentRoutes: NavItem[] = [
