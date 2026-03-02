@@ -625,6 +625,96 @@ export type Database = {
         };
         Relationships: [];
       };
+      teacher_analytics_daily: {
+        Row: {
+          date_group: string | null;
+          teacher_id: string | null;
+          total_queries: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
+          },
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      teacher_analytics_monthly: {
+        Row: {
+          date_group: string | null;
+          teacher_id: string | null;
+          total_queries: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
+          },
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      teacher_analytics_weekly: {
+        Row: {
+          date_group: string | null;
+          teacher_id: string | null;
+          total_queries: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "student_stats";
+            referencedColumns: ["student_id"];
+          },
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "teacher_stats";
+            referencedColumns: ["teacher_id"];
+          },
+          {
+            foreignKeyName: "class_teachers_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       teacher_stats: {
         Row: {
           full_name: string | null;
@@ -648,7 +738,9 @@ export type Database = {
       };
     };
     Functions: {
-      [_ in never]: never;
+      is_class_student: { Args: { c_id: string }; Returns: boolean };
+      is_class_teacher: { Args: { c_id: string }; Returns: boolean };
+      join_class_via_code: { Args: { p_class_code: string }; Returns: string };
     };
     Enums: {
       [_ in never]: never;
