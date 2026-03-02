@@ -31,9 +31,9 @@ type NavItem = {
 const teacherRoutes: NavItem[] = [
   { label: "Overview", href: "/teacher", icon: LayoutDashboard },
   { label: "Students", href: "/teacher/students", icon: Users2 },
+  { label: "Analytics", href: "/teacher/analytics", icon: BarChart3 },
   { label: "Profile", href: "/teacher/profile", icon: UserCircle },
   { label: "Feedback", href: "/teacher/feedback", icon: MessageSquarePlus },
-  { label: "Analytics", href: "/teacher/analytics", icon: BarChart3 },
 ];
 
 const studentRoutes: NavItem[] = [
