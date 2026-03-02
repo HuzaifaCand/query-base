@@ -1,4 +1,5 @@
 import type { Tables } from "@/lib/databasetypes";
+import { Database } from "@/lib/databasetypes";
 
 export type Role = "student" | "teacher" | "ta";
 
@@ -11,12 +12,6 @@ export interface ClassInfo {
   level: string | null;
 }
 
-export interface StudentStats {
-  queries_asked: number | null;
-  answers_received: number | null;
-}
+export type StudentStats = Database["public"]["Views"]["student_stats"]["Row"];
 
-export interface TeacherStats {
-  queries_resolved: number | null;
-  total_unique_students: number | null;
-}
+export type TeacherStats = Database["public"]["Views"]["teacher_stats"]["Row"];

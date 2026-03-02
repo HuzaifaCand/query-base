@@ -76,16 +76,14 @@ export default function ProfileComponent({ role }: ProfileComponentProps) {
             .select("queries_asked, answers_received")
             .eq("student_id", authUser.id)
             .maybeSingle();
-          setStudentStats(stats || { queries_asked: 0, answers_received: 0 });
+          setStudentStats(stats as StudentStats);
         } else {
           const { data: stats } = await supabase
             .from("teacher_stats")
             .select("queries_resolved, total_unique_students")
             .eq("teacher_id", authUser.id)
             .maybeSingle();
-          setTeacherStats(
-            stats || { queries_resolved: 0, total_unique_students: 0 },
-          );
+          setTeacherStats(stats as TeacherStats);
         }
       } catch (err) {
         console.error("Error fetching profile:", err);
