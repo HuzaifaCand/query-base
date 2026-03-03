@@ -65,6 +65,8 @@ export function useClassActions(onSuccess: () => void) {
       // 2. Handle specific RPC errors
       if (error) {
         if (error.message.includes("Already enrolled")) {
+          // REFRESH HERE: Just in case their token is stale
+          await supabase.auth.refreshSession();
           toast.info("You are already in this class!");
           triggerRefetch();
           onSuccess();
@@ -80,6 +82,9 @@ export function useClassActions(onSuccess: () => void) {
       }
 
       // 3. Success state
+      // REFRESH HERE: Get the new token with is_enrolled: true
+      await supabase.auth.refreshSession();
+
       toast.success("Joined class successfully!");
       triggerRefetch();
       onSuccess();

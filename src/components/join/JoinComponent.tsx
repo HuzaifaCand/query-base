@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, Sparkles } from "lucide-react";
+import { User, Sparkles, LogOut } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { ClassCodeInput } from "./ClassCodeInput";
@@ -16,6 +16,11 @@ export default function JoinComponent() {
   const [classCode, setClassCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.replace("/login");
+  };
 
   const handleJoinClass = async () => {
     if (!classCode) return;
@@ -46,6 +51,8 @@ export default function JoinComponent() {
       console.error("Error joining class:", error);
       // Let them proceed if they are somehow already enrolled
       if (error.message.includes("Already enrolled")) {
+        // REFRESH HERE: Ensure token is up to date before redirecting
+        await supabase.auth.refreshSession();
         setSubmitting(false);
         router.replace("/dashboard");
         return;
@@ -59,13 +66,26 @@ export default function JoinComponent() {
       return;
     }
 
+    // REFRESH HERE: The DB insert worked, get the new JWT claim!
+    await supabase.auth.refreshSession();
+
     setSubmitting(false);
     router.replace("/dashboard");
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 sm:px-6 relative overflow-hidden">
-      <div className="absolute top-6 right-6 z-10">
+      <div className="absolute top-4 left-4 z-20">
+        <button
+          onClick={handleSignOut}
+          className="flex items-center justify-center w-8 h-8 rounded-full bg-card/50 hover:bg-muted text-muted-foreground border border-border/50 backdrop-blur-sm transition-all shadow-sm"
+          title="Sign Out"
+        >
+          <LogOut size={14} />
+          <span className="sr-only">Sign Out</span>
+        </button>
+      </div>
+      <div className="absolute top-4 right-4 z-20">
         <ThemeToggle />
       </div>
       {/* Subtle Background Elements */}

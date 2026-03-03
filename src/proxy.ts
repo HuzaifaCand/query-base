@@ -4,25 +4,43 @@ import { NextResponse, type NextRequest } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!;
 
+// Helper function to safely decode JWTs in the Next.js Edge Runtime
+function decodeJwt(token: string) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+    return JSON.parse(atob(base64 + padding));
+  } catch (e) {
+    return {};
+  }
+}
+
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request }); // Initialize with request
+  let response = NextResponse.next({ request });
 
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (cookiesToSet) => {
         cookiesToSet.forEach(({ name, value, options }) => {
-          request.cookies.set(name, value); // Sync to request
-          response = NextResponse.next({ request }); // Update response
+          request.cookies.set(name, value);
+          response = NextResponse.next({ request });
           response.cookies.set(name, value, options);
         });
       },
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [
+    {
+      data: { user },
+    },
+    {
+      data: { session },
+    },
+  ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()]);
+
   const path = request.nextUrl.pathname;
 
   // 1. Unauthenticated Guard
@@ -31,17 +49,18 @@ export async function proxy(request: NextRequest) {
   }
 
   // 2. Authenticated Guard
-  if (user) {
+  if (user && session) {
     if (path === "/login")
       return NextResponse.redirect(new URL("/", request.url));
 
-    // FETCH DATA (Ideally replace with JWT claims to save 100-300ms)
-    const { data: userData } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-    const role = userData?.role || "student";
+    // Decode the raw JWT to get our custom root claims
+    const jwtPayload = decodeJwt(session.access_token);
+
+    console.log("RAW JWT ROLE:", jwtPayload.user_role);
+    console.log("RAW JWT ENROLLED:", jwtPayload.is_enrolled);
+
+    const role = jwtPayload.user_role || "student";
+    const isEnrolled = jwtPayload.is_enrolled || false;
 
     // Role-based Access Control (RBAC)
     const isTeacher = role === "ta" || role === "teacher";
@@ -62,26 +81,17 @@ export async function proxy(request: NextRequest) {
       if (isTeacher)
         return NextResponse.redirect(new URL("/teacher", request.url));
 
-      // Add limit(1) to prevent maybeSingle() from throwing on multiple records
-      const { data: classData, error: classError } = await supabase
-        .from("class_students")
-        .select("id")
-        .eq("student_id", user.id)
-        .limit(1)
-        .maybeSingle();
-
-      if (classError) {
-        console.error("Supabase enrollment check error:", classError);
+      if (isEnrolled && path === "/join") {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
       }
 
-      if (classData && path === "/join")
-        return NextResponse.redirect(new URL("/dashboard", request.url));
-
-      if (!classData && path === "/")
+      if (!isEnrolled && path === "/") {
         return NextResponse.redirect(new URL("/join", request.url));
+      }
 
-      if (classData && path === "/")
+      if (isEnrolled && path === "/") {
         return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
     }
   }
 
