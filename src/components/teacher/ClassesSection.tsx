@@ -6,7 +6,6 @@ import type { Tables } from "@/lib/databasetypes";
 import ClassCard from "@/components/teacher/ClassCard";
 import AddClassCard from "@/components/teacher/AddClassCard";
 import { useClasses } from "@/contexts/ClassesContext";
-import { LoadingSection } from "@/components/ui/LoadingSection";
 
 interface ClassWithTeacherAndStudentCount extends Tables<"classes"> {
   teacher: string;
@@ -178,7 +177,7 @@ export default function ClassesSection({
 
   if (classes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
+      <div className="flex flex-col items-center justify-center">
         <div className="max-w-md text-center">
           <h3 className="text-xl font-semibold text-foreground mb-2">
             No Classes Yet
