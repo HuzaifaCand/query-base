@@ -89,12 +89,12 @@ export default function ClassTabs({
                 aria-controls={`panel-${tab.id}`}
                 onClick={() => onTabChange(tab.id)}
                 // Added responsive padding, min-height for touch targets, and scroll snap
-                className="relative px-4 py-3 sm:px-6 sm:py-4 min-h-[48px] snap-start flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg select-none"
+                className="relative px-4 py-3 sm:px-6 sm:py-4 min-h-[48px] snap-start flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg select-none"
               >
                 {/* Icon */}
                 <Icon
                   aria-hidden="true"
-                  className={`w-4 h-4 transition-colors shrink-0 ${
+                  className={`w-3.5 sm:w-4 h-3.5 sm:h-4 transition-colors shrink-0 ${
                     isActive ? "text-primary" : "text-muted-foreground"
                   }`}
                 />
