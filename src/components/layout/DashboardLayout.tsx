@@ -34,10 +34,7 @@ export default function DashboardLayout({
 
         <div className="flex-1 flex-col lg:pl-64 transition-all duration-300">
           {/* Mobile Header - only visible on mobile */}
-          <MobileHeader
-            onMenuClick={() => setSidebarOpen(true)}
-            className="pb-4"
-          />
+          <MobileHeader onMenuClick={() => setSidebarOpen(true)} />
 
           <main className="flex-1 p-4 lg:p-8 max-w-7xl w-full">{children}</main>
         </div>
