@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/lib/databasetypes";
-import { Loader2 } from "lucide-react";
+import { LoadingSection } from "../ui/LoadingSection";
 
 interface StudentWithDetails {
   id: string;
@@ -122,14 +122,7 @@ export function AllStudentsList() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading students...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSection text="Loading Students" />;
   }
 
   if (error) {
