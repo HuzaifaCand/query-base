@@ -11,7 +11,7 @@ import {
   MessageSquarePlus,
   BarChart3,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { Lexend } from "next/font/google";
@@ -187,6 +187,7 @@ export const MobileSidebar = ({
 }: MobileSidebarProps) => {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const dragControls = useDragControls();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -214,27 +215,27 @@ export const MobileSidebar = ({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-              // PERF FIX: Force GPU and allow vertical scrolling inside
               style={{ willChange: "transform", touchAction: "pan-y" }}
-              // DRAG FIX: Enable swipe-to-close
+              // DRAG FIX: Enable swipe-to-close from anywhere in the drawer
               drag="x"
+              dragControls={dragControls}
+              dragListener={false}
               dragConstraints={{ left: 0, right: 0 }}
-              // Elasticity: 0 on the left (wall), 1 on the right (free pull)
               dragElastic={{ left: 0, right: 1 }}
               dragDirectionLock={true}
               onDragEnd={(e, { offset, velocity }) => {
-                // If swiped right by 100px or flicked right fast, close it
                 if (offset.x > 100 || velocity.x > 500) {
                   onClose();
                 }
               }}
-              // PERF FIX: Swapped shadow-xl for border-l on mobile
+              onPointerDown={(e) => {
+                dragControls.start(e);
+              }}
               className="fixed inset-y-0 right-0 z-50 w-3/4 max-w-sm bg-background lg:hidden border-l border-border/50 sm:shadow-2xl"
             >
               <div className="flex flex-col h-full relative">
                 {/* Mobile header: logo + theme toggle + close */}
-                {/* Notice I added touch-none to the header so dragging it feels solid */}
-                <div className="flex items-center justify-between h-24 px-6 border-b border-primary/5 touch-none shrink-0">
+                <div className="flex items-center justify-between h-24 px-6 border-b border-primary/5 shrink-0">
                   <span
                     className={`${logoFont.className} text-xl font-semibold text-primary tracking-tight`}
                   >

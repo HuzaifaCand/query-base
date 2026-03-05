@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useDragControls } from "framer-motion";
 import {
   X,
   Sparkles,
@@ -72,6 +72,7 @@ export function QueryDetailPanel({
   onAnswered,
 }: QueryDetailPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const dragControls = useDragControls();
   const userId = useCurrentUser();
 
   // ── Query editing state ──
@@ -348,17 +349,22 @@ export function QueryDetailPanel({
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             drag="x"
-            // FIX: Added left: 0 so the panel snaps back to the edge if the user aborts the swipe
+            dragControls={dragControls}
+            // Don't listen for drag on the element itself; we start it manually
+            // via onPointerDown on the whole container so it works everywhere
+            dragListener={false}
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={{ right: 0, left: 1 }} // Linear drag feeling to the left
-            // FIX: Locks the axis so dragging diagonally doesn't freeze the interaction
+            dragElastic={{ right: 0, left: 1 }}
             dragDirectionLock={true}
-            // FIX: Forces GPU acceleration and allows vertical scrolling inside the drag container
             style={{ willChange: "transform", touchAction: "pan-y" }}
             onDragEnd={(e, { offset, velocity }) => {
               if (offset.x < -100 || velocity.x < -500) {
                 onClose();
               }
+            }}
+            // Start drag from anywhere in the panel on horizontal pointer movement
+            onPointerDown={(e) => {
+              dragControls.start(e);
             }}
             className={cn(
               "fixed inset-y-0 left-0 z-50 flex flex-col",
