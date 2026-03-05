@@ -19,6 +19,7 @@ import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useSubmit } from "@/hooks/useSubmit";
 import { useQueryInputHandlers } from "@/hooks/useQueryInputHandlers";
+import { useInvalidateQueries } from "@/hooks/queries/useInvalidateQueries";
 
 // Components
 import { PrivacyToggle } from "./components/PrivacyToggle";
@@ -47,6 +48,7 @@ export function CreateQuery({ classId }: { classId: string }) {
     [],
   );
   const { submitQuery, isSubmitting } = useSubmit();
+  const invalidate = useInvalidateQueries();
 
   // Tag state
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
@@ -114,6 +116,7 @@ export function CreateQuery({ classId }: { classId: string }) {
 
     if (success) {
       toast.success("Query submitted successfully!");
+      invalidate();
 
       // Reset everything
       reset();
