@@ -31,7 +31,7 @@ export function useQueryDeepLink() {
       setSelectedQueryId(id);
       const current = new URLSearchParams(Array.from(searchParams.entries()));
       current.set(PARAM, id);
-      router.replace(`?${current.toString()}`, { scroll: false });
+      router.push(`?${current.toString()}`, { scroll: false });
     },
     [router, searchParams],
   );
