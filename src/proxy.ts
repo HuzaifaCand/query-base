@@ -56,9 +56,6 @@ export async function proxy(request: NextRequest) {
     // Decode the raw JWT to get our custom root claims
     const jwtPayload = decodeJwt(session.access_token);
 
-    console.log("RAW JWT ROLE:", jwtPayload.user_role);
-    console.log("RAW JWT ENROLLED:", jwtPayload.is_enrolled);
-
     const role = jwtPayload.user_role || "student";
     const isEnrolled = jwtPayload.is_enrolled || false;
 

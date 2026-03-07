@@ -157,12 +157,6 @@ export function CreateQuery({ classId }: { classId: string }) {
             onToggle={() => setValue("isPrivate", !isPrivate)}
           />
         </div>
-        {/* Privacy context — always visible including mobile */}
-        <p className="text-[11px] text-muted-foreground/70 text-right mt-1.5 pr-1">
-          {isPrivate
-            ? "Only you and your teacher can see this question"
-            : "All students in the class can see and learn from this"}
-        </p>
       </div>
 
       {/* ── Optional Title ── */}
