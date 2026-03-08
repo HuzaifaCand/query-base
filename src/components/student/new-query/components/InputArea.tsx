@@ -38,6 +38,18 @@ export function InputArea({
   maxLength,
   queryPanel,
 }: InputAreaProps) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Check for Ctrl + Right Arrow or Ctrl + Left Arrow
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      (e.key === "ArrowRight" || e.key === "ArrowLeft")
+    ) {
+      // Stop the browser from navigating or the app from seeing the shortcut
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("Blocked history shortcut in InputArea");
+    }
+  };
   return (
     <div
       className={cn(
@@ -63,6 +75,7 @@ export function InputArea({
           queryPanel && "lg:text-base",
         )}
         maxLength={maxLength}
+        onKeyDown={handleKeyDown}
       />
 
       {/* Voice Note Preview - Below Textarea */}
