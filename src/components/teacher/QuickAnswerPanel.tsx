@@ -78,6 +78,7 @@ export function QuickAnswerPanel({
 
   const currentQuery = queries[displayIndex];
   const { submitAnswer } = useSubmit();
+  const dragControls = useDragControls();
 
   // ── Form ──────────────────────────────────────────────────────────────────
   const {
@@ -270,8 +271,6 @@ export function QuickAnswerPanel({
       : slideDirection === "right"
         ? "opacity-0 translate-x-6"
         : "opacity-100 translate-x-0";
-
-  const dragControls = useDragControls();
 
   const modalContent = (
     <div
