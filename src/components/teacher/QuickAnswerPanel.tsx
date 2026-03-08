@@ -148,8 +148,6 @@ export function QuickAnswerPanel({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") triggerClose();
-      if (e.key === "ArrowLeft") navigate("prev");
-      if (e.key === "ArrowRight") navigate("next");
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
