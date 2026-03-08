@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { AnimatePresence, motion, useDragControls } from "framer-motion";
 import {
   X,
@@ -84,6 +84,8 @@ export function QueryDetailPanel({
   );
   const [isSavingQuery, setIsSavingQuery] = useState(false);
   const [showDeleteQueryModal, setShowDeleteQueryModal] = useState(false);
+  const [hasAnswerDraft, setHasAnswerDraft] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
 
   // ── New attachments during editing ──
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -112,20 +114,24 @@ export function QueryDetailPanel({
     };
   }, [query]);
 
+  const handleAttemptClose = useCallback(() => {
+    if (isEditingQuery || hasAnswerDraft) {
+      setShowCloseModal(true);
+    } else {
+      onClose();
+    }
+  }, [isEditingQuery, hasAnswerDraft, onClose]);
+
   // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (isEditingQuery) {
-          setIsEditingQuery(false);
-          return;
-        }
-        onClose();
+        handleAttemptClose();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [onClose, isEditingQuery]);
+  }, [handleAttemptClose]);
 
   const isAnswered = !!query?.answered_at;
   const officialAnswer =
@@ -336,7 +342,7 @@ export function QueryDetailPanel({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-50 bg-black/40 h-screen"
-            onClick={onClose}
+            onClick={handleAttemptClose}
           />
 
           {/* Slide-over panel */}
@@ -359,7 +365,7 @@ export function QueryDetailPanel({
             style={{ willChange: "transform", touchAction: "pan-y" }}
             onDragEnd={(e, { offset, velocity }) => {
               if (offset.x < -100 || velocity.x < -500) {
-                onClose();
+                handleAttemptClose();
               }
             }}
             // Start drag from anywhere in the panel on horizontal pointer movement
@@ -401,7 +407,7 @@ export function QueryDetailPanel({
 
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={handleAttemptClose}
                   className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors duration-150"
                   aria-label="Close panel"
                 >
@@ -659,6 +665,7 @@ export function QueryDetailPanel({
                     queryId={query.id}
                     classId={classId}
                     onUpdated={onAnswered}
+                    onDraftChange={setHasAnswerDraft}
                   />
                 </div>
               )}
@@ -670,6 +677,7 @@ export function QueryDetailPanel({
                     classId={classId}
                     queryId={query.id}
                     onAnswered={onAnswered}
+                    onDraftChange={setHasAnswerDraft}
                   />
                 </div>
               )}
@@ -685,6 +693,16 @@ export function QueryDetailPanel({
             description="Are you sure you want to delete this query? This action cannot be undone."
             isDestructive
             confirmLabel="Delete Query"
+          />
+
+          <ConfirmationModal
+            isOpen={showCloseModal}
+            onClose={() => setShowCloseModal(false)}
+            onConfirm={onClose}
+            title="Discard Draft?"
+            description="You have an unsaved draft. Are you sure you want to discard it and close the panel? This action cannot be undone."
+            isDestructive
+            confirmLabel="Discard Draft"
           />
         </>
       )}

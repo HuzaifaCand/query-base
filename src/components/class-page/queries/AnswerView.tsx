@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { CheckCircle2, Pencil, Trash2, Loader2, Save, X } from "lucide-react";
 import { Database } from "@/lib/databasetypes";
 import { AttachmentList } from "./AttachmentList";
@@ -29,6 +29,7 @@ interface AnswerViewProps {
   queryId?: string;
   classId?: string;
   onUpdated?: () => void;
+  onDraftChange?: (hasDraft: boolean) => void;
 }
 
 export function AnswerView({
@@ -37,6 +38,7 @@ export function AnswerView({
   queryId,
   classId,
   onUpdated,
+  onDraftChange,
 }: AnswerViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(answer.body_text || "");
@@ -50,6 +52,10 @@ export function AnswerView({
   const [newImages, setNewImages] = useState<File[]>([]);
   const newImageInputRef = useRef<HTMLInputElement>(null);
   const voiceRecorder = useVoiceRecorder();
+
+  useEffect(() => {
+    onDraftChange?.(isEditing);
+  }, [isEditing, onDraftChange]);
 
   const isOwner = !!userId && answer.author_id === userId;
 

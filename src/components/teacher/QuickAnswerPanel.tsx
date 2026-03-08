@@ -30,6 +30,8 @@ import { AttachmentList } from "@/components/class-page/queries/AttachmentList";
 import { featureQuery } from "../class-page/queries/AnswerPanel";
 import { AnswerFeatureToggle } from "../class-page/queries/AnswerFeatureToggle";
 
+import ConfirmationModal from "@/components/layout/ConfirmationModal";
+
 interface QuickAnswerModalProps {
   queries: PendingQuery[];
   initialIndex?: number;
@@ -57,6 +59,7 @@ export function QuickAnswerPanel({
   // ── Modal open/close animation state ──────────────────────────────────────
   const [isVisible, setIsVisible] = useState(false); // drives CSS transition
   const [isClosing, setIsClosing] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
 
   // ── Query slide animation state ────────────────────────────────────────────
   const [slideDirection, setSlideDirection] = useState<SlideDirection>("none");
@@ -156,6 +159,14 @@ export function QuickAnswerPanel({
   // ── Animated close ────────────────────────────────────────────────────────
   function triggerClose() {
     if (isClosing) return;
+    if (hasDraft) {
+      setShowCloseModal(true);
+      return;
+    }
+    executeClose();
+  }
+
+  function executeClose() {
     setIsClosing(true);
     setIsVisible(false);
     // Wait for CSS transition to finish before unmounting
@@ -522,6 +533,17 @@ export function QuickAnswerPanel({
           </div>
         </div>
       </motion.div>
+
+      {/* Discard draft confirmation modal */}
+      <ConfirmationModal
+        isOpen={showCloseModal}
+        onClose={() => setShowCloseModal(false)}
+        onConfirm={executeClose}
+        title="Discard Draft?"
+        description="You have an unsaved answer draft. Are you sure you want to discard it and close the panel? This action cannot be undone."
+        isDestructive
+        confirmLabel="Discard Draft"
+      />
     </div>
   );
 

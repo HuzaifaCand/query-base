@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { answerSchema, AnswerFormData } from "@/lib/validations/query";
@@ -46,12 +46,14 @@ interface AnswerPanelProps {
   classId: string;
   queryId: string;
   onAnswered: () => void;
+  onDraftChange?: (hasDraft: boolean) => void;
 }
 
 export function AnswerPanel({
   classId,
   queryId,
   onAnswered,
+  onDraftChange,
 }: AnswerPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [featureForClass, setFeatureForClass] = useState(false);
@@ -101,6 +103,10 @@ export function AnswerPanel({
 
   const hasContent =
     bodyText.trim().length > 0 || hasVoiceNote || (images && images.length > 0);
+
+  useEffect(() => {
+    onDraftChange?.(hasContent);
+  }, [hasContent, onDraftChange]);
 
   const onSubmit: SubmitHandler<AnswerFormData> = async (data) => {
     const success = await submitAnswer(
